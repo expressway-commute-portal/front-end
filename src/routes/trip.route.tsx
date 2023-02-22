@@ -1,5 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Col, Form, Layout, message, Modal, Popconfirm, Row, Select, Table} from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Layout,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Table,
+  Tooltip,
+} from 'antd';
 import {Content} from 'antd/es/layout/layout';
 import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
 import ButtonGroup from 'antd/es/button/button-group';
@@ -147,22 +159,24 @@ const TripRoute = () => {
                   title={'Action'}
                   key={'action'}
                   render={(_, record) => (
-                    <ButtonGroup>
-                      <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setSelectedTrip(record);
-                          openModal();
-                        }}
-                      />
-                      <Popconfirm
-                        disabled
-                        title={'Are you sure?'}
-                        placement={'leftTop'}
-                        onConfirm={() => onDelete(record.id)}>
-                        <Button disabled danger icon={<DeleteOutlined />} />
-                      </Popconfirm>
-                    </ButtonGroup>
+                    <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
+                      <ButtonGroup>
+                        <Button
+                          icon={<EditOutlined />}
+                          onClick={() => {
+                            setSelectedTrip(record);
+                            openModal();
+                          }}
+                        />
+                        <Popconfirm
+                          disabled
+                          title={'Are you sure?'}
+                          placement={'leftTop'}
+                          onConfirm={() => onDelete(record.id)}>
+                          <Button disabled danger icon={<DeleteOutlined />} />
+                        </Popconfirm>
+                      </ButtonGroup>
+                    </Tooltip>
                   )}
                 />
               </Table>

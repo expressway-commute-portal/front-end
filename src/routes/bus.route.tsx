@@ -11,6 +11,7 @@ import {
   Popconfirm,
   Row,
   Table,
+  Tooltip,
 } from 'antd';
 import {useBusStore} from '../store/bus.store';
 import {Bus} from '../models/Bus';
@@ -150,24 +151,26 @@ const BusRoute = () => {
                   title={'Action'}
                   key={'action'}
                   render={(_, record) => (
-                    <ButtonGroup>
-                      <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setSelectedBus(record);
-                          setTimeout(() => {
-                            openModal();
-                          }, 0);
-                        }}
-                      />
-                      <Popconfirm
-                        disabled
-                        title={'Are you sure?'}
-                        placement={'leftTop'}
-                        onConfirm={() => onDelete(record.id)}>
-                        <Button disabled danger icon={<DeleteOutlined />} />
-                      </Popconfirm>
-                    </ButtonGroup>
+                    <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
+                      <ButtonGroup>
+                        <Button
+                          icon={<EditOutlined />}
+                          onClick={() => {
+                            setSelectedBus(record);
+                            setTimeout(() => {
+                              openModal();
+                            }, 0);
+                          }}
+                        />
+                        <Popconfirm
+                          disabled
+                          title={'Are you sure?'}
+                          placement={'leftTop'}
+                          onConfirm={() => onDelete(record.id)}>
+                          <Button disabled danger icon={<DeleteOutlined />} />
+                        </Popconfirm>
+                      </ButtonGroup>
+                    </Tooltip>
                   )}
                 />
               </Table>

@@ -1,5 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Col, Form, Input, Layout, message, Modal, Popconfirm, Row, Table} from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Layout,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Table,
+  Tooltip,
+} from 'antd';
 import {Bus} from '../models/Bus';
 import {Content} from 'antd/es/layout/layout';
 import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
@@ -106,24 +118,26 @@ const CityRoute = () => {
                   title={'Action'}
                   key={'action'}
                   render={(_, record) => (
-                    <ButtonGroup>
-                      <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setSelectedCity(record);
-                          setTimeout(() => {
-                            openModal();
-                          }, 0);
-                        }}
-                      />
-                      <Popconfirm
-                        disabled
-                        title={'Are you sure?'}
-                        placement={'leftTop'}
-                        onConfirm={() => onDelete(record.id)}>
-                        <Button disabled danger icon={<DeleteOutlined />} />
-                      </Popconfirm>
-                    </ButtonGroup>
+                    <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
+                      <ButtonGroup>
+                        <Button
+                          icon={<EditOutlined />}
+                          onClick={() => {
+                            setSelectedCity(record);
+                            setTimeout(() => {
+                              openModal();
+                            }, 0);
+                          }}
+                        />
+                        <Popconfirm
+                          disabled
+                          title={'Are you sure?'}
+                          placement={'leftTop'}
+                          onConfirm={() => onDelete(record.id)}>
+                          <Button disabled danger icon={<DeleteOutlined />} />
+                        </Popconfirm>
+                      </ButtonGroup>
+                    </Tooltip>
                   )}
                 />
               </Table>

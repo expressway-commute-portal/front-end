@@ -8,7 +8,7 @@ import {DateTime} from 'luxon';
 
 import '../App.css';
 
-function App() {
+function ScheduleSearchRoute() {
   const departureCities = useCityStore(state => state.departureCities);
   const arrivalCities = useCityStore(state => state.arrivalCities);
 
@@ -178,4 +178,4 @@ function App() {
   );
 }
 
-export default App;
+export default ScheduleSearchRoute;

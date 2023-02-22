@@ -2,23 +2,22 @@ import 'antd/dist/reset.css';
 
 import {createBrowserRouter, RouterProvider} from 'react-router-dom';
 import React, {useEffect} from 'react';
-import {db} from '../config/firebase';
-import App from './App';
+import ScheduleSearchRoute from './scheduleSearch.route';
 import BusRoute from './bus.route';
-import {enableIndexedDbPersistence} from 'firebase/firestore';
 import {getAuth, signInAnonymously} from 'firebase/auth';
 import CityRoute from './city.route';
 import TripRoute from './trip.route';
+import ScheduleRoute from './schedule.route';
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <BusRoute />,
+    element: <ScheduleSearchRoute />,
     errorElement: <h1>404 Error Page</h1>,
   },
   {
     path: '/schedule',
-    element: <App />,
+    element: <ScheduleRoute />,
     errorElement: <h1>404 Error Page</h1>,
   },
   {
