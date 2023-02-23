@@ -1,5 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Col, Form, Layout, message, Modal, Popconfirm, Row, Select, Table} from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Layout,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Select,
+  Table,
+  Tooltip,
+} from 'antd';
 import {Content} from 'antd/es/layout/layout';
 import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
 import ButtonGroup from 'antd/es/button/button-group';
@@ -114,86 +126,77 @@ const TripRoute = () => {
 
   return (
     <>
-      <Layout style={{paddingLeft: 100, paddingRight: 100, paddingTop: 30}}>
-        <Content>
-          {contextHolder}
-          <Row align={'middle'}>
-            <Col span={24} style={{border: '', textAlign: 'right'}}>
-              <Button
-                type={'primary'}
-                icon={<PlusCircleOutlined />}
-                size={'large'}
-                onClick={openModal}>
-                Add
-              </Button>
-            </Col>
-          </Row>
-          <br />
-          <Row>
-            <Col flex={1}>
-              <Table
-                size={'small'}
-                loading={getTripsLoading}
-                dataSource={trips}
-                bordered
-                rowKey={'id'}
-                title={() => <h1>Trips</h1>}>
-                <Table.Column<Trip>
-                  title={'Departure City'}
-                  dataIndex={['departureCity', 'name']}
-                />
-                <Table.Column<Trip> title={'Arrival City'} dataIndex={['arrivalCity', 'name']} />
-                <Table.Column<Trip>
-                  title={'Action'}
-                  key={'action'}
-                  render={(_, record) => (
-                    <ButtonGroup>
-                      <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setSelectedTrip(record);
-                          openModal();
-                        }}
-                      />
-                      <Popconfirm
-                        disabled
-                        title={'Are you sure?'}
-                        placement={'leftTop'}
-                        onConfirm={() => onDelete(record.id)}>
-                        <Button disabled danger icon={<DeleteOutlined />} />
-                      </Popconfirm>
-                    </ButtonGroup>
-                  )}
-                />
-              </Table>
-              <Modal
-                open={open}
-                destroyOnClose
-                maskClosable
-                onCancel={closeModal}
-                onOk={form.submit}
-                confirmLoading={createTripLoading || updateTripLoading}>
-                <h1>Form</h1>
-                <Form form={form} labelCol={{span: 6}} onFinish={onFinish} preserve={false}>
-                  <Form.Item
-                    name={'departureCity'}
-                    label={'Departure City'}
-                    rules={[{required: true, message: 'Departure City is required'}]}>
-                    <Select options={cities.map(city => ({label: city.name, value: city.id}))} />
-                  </Form.Item>
+      {contextHolder}
+      <Row align={'middle'}>
+        <Col span={24} style={{border: '', textAlign: 'right'}}>
+          <Button type={'primary'} icon={<PlusCircleOutlined />} size={'large'} onClick={openModal}>
+            Add
+          </Button>
+        </Col>
+      </Row>
+      <br />
+      <Row>
+        <Col flex={1}>
+          <Table
+            size={'small'}
+            loading={getTripsLoading}
+            dataSource={trips}
+            bordered
+            rowKey={'id'}
+            title={() => <h1>Trips</h1>}>
+            <Table.Column<Trip> title={'Departure City'} dataIndex={['departureCity', 'name']} />
+            <Table.Column<Trip> title={'Arrival City'} dataIndex={['arrivalCity', 'name']} />
+            <Table.Column<Trip>
+              title={'Action'}
+              key={'action'}
+              render={(_, record) => (
+                <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
+                  <ButtonGroup>
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() => {
+                        setSelectedTrip(record);
+                        openModal();
+                      }}
+                    />
+                    <Popconfirm
+                      disabled
+                      title={'Are you sure?'}
+                      placement={'leftTop'}
+                      onConfirm={() => onDelete(record.id)}>
+                      <Button disabled danger icon={<DeleteOutlined />} />
+                    </Popconfirm>
+                  </ButtonGroup>
+                </Tooltip>
+              )}
+            />
+          </Table>
+          <Modal
+            open={open}
+            destroyOnClose
+            maskClosable
+            onCancel={closeModal}
+            onOk={form.submit}
+            confirmLoading={createTripLoading || updateTripLoading}>
+            <h1>Form</h1>
+            <Form form={form} labelCol={{span: 6}} onFinish={onFinish} preserve={false}>
+              <Form.Item
+                name={'departureCity'}
+                label={'Departure City'}
+                rules={[{required: true, message: 'Departure City is required'}]}>
+                <Select options={cities.map(city => ({label: city.name, value: city.id}))} />
+              </Form.Item>
 
-                  <Form.Item
-                    name={'arrivalCity'}
-                    label={'Arrival City'}
-                    rules={[{required: true, message: 'Arrival City is required'}]}>
-                    <Select options={cities.map(city => ({label: city.name, value: city.id}))} />
-                  </Form.Item>
-                </Form>
-              </Modal>
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
+              <Form.Item
+                name={'arrivalCity'}
+                label={'Arrival City'}
+                rules={[{required: true, message: 'Arrival City is required'}]}>
+                <Select options={cities.map(city => ({label: city.name, value: city.id}))} />
+              </Form.Item>
+            </Form>
+          </Modal>
+        </Col>
+      </Row>
     </>
   );
 };

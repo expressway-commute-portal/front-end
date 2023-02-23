@@ -7,6 +7,7 @@ import {
   updateDoc,
   Timestamp,
   addDoc,
+  getDoc,
 } from 'firebase/firestore';
 import {db} from '../config/firebase';
 import {FirestoreCollections} from '../models';
@@ -18,6 +19,13 @@ export const getAll = async () => {
     id: doc.id,
     ...doc.data(),
   })) as Bus[];
+};
+
+export const getById = async (id: string) => {
+  const snapshot = await getDoc(doc(db, FirestoreCollections.Bus, id));
+  if (snapshot.exists()) {
+    return {...snapshot.data(), id: snapshot.id} as Bus;
+  }
 };
 
 export const create = async (bus: FirebaseBus) => {

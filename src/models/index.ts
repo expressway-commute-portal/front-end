@@ -3,4 +3,5 @@ export enum FirestoreCollections {
   Schedule = 'schedule',
   Trip = 'trip',
   Bus = 'bus',
+  User = 'user',
 }

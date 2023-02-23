@@ -11,6 +11,7 @@ import {
   Popconfirm,
   Row,
   Table,
+  Tooltip,
 } from 'antd';
 import {useBusStore} from '../store/bus.store';
 import {Bus} from '../models/Bus';
@@ -115,135 +116,129 @@ const BusRoute = () => {
 
   return (
     <>
-      <Layout style={{paddingLeft: 100, paddingRight: 100, paddingTop: 30}}>
-        <Content>
-          {contextHolder}
-          <Row align={'middle'}>
-            <Col span={24} style={{border: '', textAlign: 'right'}}>
-              <Button
-                type={'primary'}
-                icon={<PlusCircleOutlined />}
-                size={'large'}
-                onClick={openModal}>
-                Add
-              </Button>
-            </Col>
-          </Row>
-          <br />
-          <Row>
-            <Col flex={1}>
-              <Table
-                size={'small'}
-                loading={getBusesLoading}
-                dataSource={buses}
-                bordered
-                rowKey={'id'}
-                title={() => <h1>Buses</h1>}>
-                <Table.Column<Bus> title={'Name'} dataIndex={'name'} />
-                <Table.Column<Bus> title={'Reg No'} dataIndex={'regNumber'} />
-                <Table.Column<Bus>
-                  title={'Contact Numbers'}
-                  dataIndex={'contactNumbers'}
-                  render={(value: string[]) => value.join(', ')}
-                />
-                <Table.Column<Bus>
-                  title={'Action'}
-                  key={'action'}
-                  render={(_, record) => (
-                    <ButtonGroup>
-                      <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setSelectedBus(record);
-                          setTimeout(() => {
-                            openModal();
-                          }, 0);
-                        }}
-                      />
-                      <Popconfirm
-                        disabled
-                        title={'Are you sure?'}
-                        placement={'leftTop'}
-                        onConfirm={() => onDelete(record.id)}>
-                        <Button disabled danger icon={<DeleteOutlined />} />
-                      </Popconfirm>
-                    </ButtonGroup>
-                  )}
-                />
-              </Table>
-              <Modal
-                open={open}
-                destroyOnClose
-                maskClosable
-                onCancel={closeModal}
-                onOk={form.submit}
-                confirmLoading={createBusLoading || updateBusLoading}>
-                <h1>Form</h1>
-                <Form form={form} labelCol={{span: 6}} onFinish={onFinish} preserve={false}>
-                  <Form.Item
-                    label={'Name'}
-                    name={'name'}
-                    rules={[{required: true, message: 'Name is required'}]}>
-                    <Input placeholder={'Name'} />
-                  </Form.Item>
+      {contextHolder}
+      <Row align={'middle'}>
+        <Col span={24} style={{border: '', textAlign: 'right'}}>
+          <Button type={'primary'} icon={<PlusCircleOutlined />} size={'large'} onClick={openModal}>
+            Add
+          </Button>
+        </Col>
+      </Row>
+      <br />
+      <Row>
+        <Col flex={1}>
+          <Table
+            size={'small'}
+            loading={getBusesLoading}
+            dataSource={buses}
+            bordered
+            rowKey={'id'}
+            title={() => <h1>Buses</h1>}>
+            <Table.Column<Bus> title={'Name'} dataIndex={'name'} />
+            <Table.Column<Bus> title={'Reg No'} dataIndex={'regNumber'} />
+            <Table.Column<Bus>
+              title={'Contact Numbers'}
+              dataIndex={'contactNumbers'}
+              render={(value: string[]) => value.join(', ')}
+            />
+            <Table.Column<Bus>
+              title={'Action'}
+              key={'action'}
+              render={(_, record) => (
+                <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
+                  <ButtonGroup>
+                    <Button
+                      icon={<EditOutlined />}
+                      onClick={() => {
+                        setSelectedBus(record);
+                        setTimeout(() => {
+                          openModal();
+                        }, 0);
+                      }}
+                    />
+                    <Popconfirm
+                      disabled
+                      title={'Are you sure?'}
+                      placement={'leftTop'}
+                      onConfirm={() => onDelete(record.id)}>
+                      <Button disabled danger icon={<DeleteOutlined />} />
+                    </Popconfirm>
+                  </ButtonGroup>
+                </Tooltip>
+              )}
+            />
+          </Table>
+          <Modal
+            open={open}
+            destroyOnClose
+            maskClosable
+            onCancel={closeModal}
+            onOk={form.submit}
+            confirmLoading={createBusLoading || updateBusLoading}>
+            <h1>Form</h1>
+            <Form form={form} labelCol={{span: 6}} onFinish={onFinish} preserve={false}>
+              <Form.Item
+                label={'Name'}
+                name={'name'}
+                rules={[{required: true, message: 'Name is required'}]}>
+                <Input placeholder={'Name'} />
+              </Form.Item>
 
-                  <Form.Item
-                    label={'Reg Number'}
-                    name={'regNumber'}
-                    rules={[{required: true, message: 'Reg Number is required'}]}>
-                    <Input placeholder={'Registration Number'} />
-                  </Form.Item>
+              <Form.Item
+                label={'Reg Number'}
+                name={'regNumber'}
+                rules={[{required: true, message: 'Reg Number is required'}]}>
+                <Input placeholder={'Registration Number'} />
+              </Form.Item>
 
-                  <Form.List name="contactNumbers">
-                    {(fields, {add, remove}, {errors}) => (
-                      <>
-                        {fields.map((field, index) => {
-                          return (
-                            <Form.Item
-                              {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-                              label={index === 0 ? 'Contact Number' : ''}
-                              required={false}
-                              key={field.key}>
-                              <Form.Item
-                                {...field}
-                                validateTrigger={['onChange', 'onBlur']}
-                                rules={[
-                                  {
-                                    required: true,
-                                    whitespace: true,
-                                    message: 'Please input contact number or delete this field.',
-                                  },
-                                ]}
-                                noStyle>
-                                <InputNumber placeholder="Contact Number" style={{width: '90%'}} />
-                              </Form.Item>
-                              &nbsp;&nbsp;
-                              <MinusCircleOutlined
-                                key={`${field.name}${field.key}`}
-                                onClick={() => remove(field.name)}
-                              />
-                            </Form.Item>
-                          );
-                        })}
-                        <Form.Item wrapperCol={{offset: 6}}>
-                          <Button
-                            type="dashed"
-                            onClick={() => add()}
-                            style={{width: '60%'}}
-                            icon={<PlusOutlined />}>
-                            Add Contact Number
-                          </Button>
-                          <Form.ErrorList errors={errors} />
+              <Form.List name="contactNumbers">
+                {(fields, {add, remove}, {errors}) => (
+                  <>
+                    {fields.map((field, index) => {
+                      return (
+                        <Form.Item
+                          {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+                          label={index === 0 ? 'Contact Number' : ''}
+                          required={false}
+                          key={field.key}>
+                          <Form.Item
+                            {...field}
+                            validateTrigger={['onChange', 'onBlur']}
+                            rules={[
+                              {
+                                required: true,
+                                whitespace: true,
+                                message: 'Please input contact number or delete this field.',
+                              },
+                            ]}
+                            noStyle>
+                            <InputNumber placeholder="Contact Number" style={{width: '90%'}} />
+                          </Form.Item>
+                          &nbsp;&nbsp;
+                          <MinusCircleOutlined
+                            key={`${field.name}${field.key}`}
+                            onClick={() => remove(field.name)}
+                          />
                         </Form.Item>
-                      </>
-                    )}
-                  </Form.List>
-                </Form>
-              </Modal>
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
+                      );
+                    })}
+                    <Form.Item wrapperCol={{offset: 6}}>
+                      <Button
+                        type="dashed"
+                        onClick={() => add()}
+                        style={{width: '60%'}}
+                        icon={<PlusOutlined />}>
+                        Add Contact Number
+                      </Button>
+                      <Form.ErrorList errors={errors} />
+                    </Form.Item>
+                  </>
+                )}
+              </Form.List>
+            </Form>
+          </Modal>
+        </Col>
+      </Row>
     </>
   );
 };

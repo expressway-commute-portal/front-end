@@ -3,6 +3,7 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   limit,
   query,
@@ -17,6 +18,13 @@ import {FirestoreCollections} from '../models';
 export async function getAll() {
   const snap = await getDocs(query(collection(db, FirestoreCollections.Trip)));
   return snap.docs.map(doc => ({...doc.data(), id: doc.id})) as Trip[];
+}
+
+export async function getById(id: string) {
+  const snapshot = await getDoc(doc(db, FirestoreCollections.Trip, id));
+  if (snapshot.exists()) {
+    return {...snapshot.data(), id: snapshot.id} as Trip;
+  }
 }
 
 export async function create(trip: FirebaseTrip) {
@@ -46,8 +54,8 @@ export const getTripByCityIds = async (departureCityId: string, arrivalCityId: s
   const snap = await getDocs(
     query(
       collection(db, FirestoreCollections.Trip),
-      where('departureCityId', '==', departureCityId),
-      where('arrivalCityId', '==', arrivalCityId),
+      where('departureCity.id', '==', departureCityId),
+      where('arrivalCity.id', '==', arrivalCityId),
       limit(1),
     ),
   );

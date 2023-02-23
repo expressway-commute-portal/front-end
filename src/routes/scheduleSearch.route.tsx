@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Button, Card, Col, Form, List, Row, Select} from 'antd';
+import {Button, Card, Col, Form, List, Modal, Row, Select} from 'antd';
 import _debounce from 'lodash/debounce';
 import {useCityStore} from '../store/city.store';
 import {useTripStore} from '../store/trip.store';
@@ -7,13 +7,16 @@ import {useScheduleStore} from '../store/schedule.store';
 import {DateTime} from 'luxon';
 
 import '../App.css';
+import {useBusStore} from '../store/bus.store';
 
-function App() {
-  const departureCities = useCityStore(state => state.departureCities);
-  const arrivalCities = useCityStore(state => state.arrivalCities);
-
+function ScheduleSearchRoute() {
   const [departureCity, setDepartureCity] = useState('');
   const [arrivalCity, setArrivalCity] = useState('');
+
+  const [open, setOpen] = useState(false);
+
+  const departureCities = useCityStore(state => state.departureCities);
+  const arrivalCities = useCityStore(state => state.arrivalCities);
 
   const getDepartureCitiesByName = useCityStore(state => state.getDepartureCitiesByName);
   const getDepartureCitiesByNameLoading = useCityStore(
@@ -33,6 +36,9 @@ function App() {
   const schedules = useScheduleStore(state => state.schedules);
   const getSchedulesLoading = useScheduleStore(state => state.getSchedulesLoading);
   const getSchedules = useScheduleStore(state => state.getSchedules);
+
+  const selectedBus = useBusStore(state => state.selectedBus);
+  const getBusById = useBusStore(state => state.getBusById);
 
   const onDepartureSearch = async (value: string) => {
     if (value) {
@@ -73,6 +79,15 @@ function App() {
     await getSchedules();
   };
 
+  const onBusDetailsButtonClick = async (id: string) => {
+    await getBusById(id);
+    setOpen(true);
+  };
+
+  const onCloseModal = () => {
+    setOpen(false);
+  };
+
   return (
     <>
       <Row justify={'center'} style={{border: ''}}>
@@ -80,16 +95,16 @@ function App() {
           <Card
             title={'Expressway Bus Schedule'}
             headStyle={{textAlign: 'center'}}
-            bodyStyle={{justifyContent: 'center'}}>
+          >
             <Form
               labelAlign={'right'}
-              labelCol={{span: 11}}
+              labelCol={{span: 10}}
               style={{border: ''}}
               onFinish={onFinish}>
               <Form.Item
-                style={{border: ''}}
                 label={'Departure City'}
                 name={'departureCity'}
+                style={{width: 300}}
                 rules={[{required: true, message: 'Departure city is required'}]}>
                 <Select
                   loading={getDepartureCitiesByNameLoading}
@@ -97,7 +112,8 @@ function App() {
                   labelInValue
                   placeholder={'Please enter the city name'}
                   onSearch={debouncedDepartureSearch}
-                  onChange={value => setDepartureCity(value.label)}>
+                  onChange={value => setDepartureCity(value.label)}
+                >
                   {departureCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}
@@ -109,6 +125,7 @@ function App() {
               <Form.Item
                 label={'Arrival City'}
                 name={'arrivalCity'}
+                style={{width: 300}}
                 rules={[{required: true, message: 'Arrival city is required'}]}>
                 <Select
                   loading={getArrivalCitiesByNameLoading}
@@ -116,7 +133,8 @@ function App() {
                   labelInValue
                   placeholder={'Please enter the city name'}
                   onSearch={debouncedArrivalSearch}
-                  onChange={value => setArrivalCity(value.label)}>
+                  onChange={value => setArrivalCity(value.label)}
+                >
                   {arrivalCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}
@@ -167,6 +185,13 @@ function App() {
                       Arrival Time:{' '}
                       {DateTime.fromJSDate(item.arrivalTime.toDate()).toFormat('hh:mm a')}
                     </p>
+                    {item.busId && (
+                      <Button
+                        type={'default'}
+                        onClick={() => onBusDetailsButtonClick(item.busId || '')}>
+                        Bus Details
+                      </Button>
+                    )}
                   </Card>
                 </List.Item>
               )}
@@ -174,8 +199,28 @@ function App() {
           </Col>
         </Row>
       )}
+      {selectedBus && (
+        <Modal
+          bodyStyle={{textAlign: 'center'}}
+          title={<div style={{textAlign: 'center'}}>Bus Details</div>}
+          open={open}
+          onCancel={onCloseModal}
+          destroyOnClose
+          maskClosable
+          footer={null}>
+          <p>{selectedBus.name}</p>
+          <p>{selectedBus.regNumber}</p>
+          {selectedBus.contactNumbers.map((no, i) => (
+            <div key={i}>
+              <a href={`tel:${no}`}>{no}</a>
+              <br />
+              <br />
+            </div>
+          ))}
+        </Modal>
+      )}
     </>
   );
 }
 
-export default App;
+export default ScheduleSearchRoute;

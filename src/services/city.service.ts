@@ -49,9 +49,9 @@ export const getById = async (id: string) => {
   }
 };
 
-export const create = async (bus: FirebaseCity) => {
+export const create = async (firebaseCity: FirebaseCity) => {
   const document = {
-    ...bus,
+    ...firebaseCity,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   };
@@ -59,9 +59,9 @@ export const create = async (bus: FirebaseCity) => {
   await addDoc(collection(db, FirestoreCollections.City), document as any);
 };
 
-export const update = async (id: string, bus: Partial<City>) => {
+export const update = async (id: string, city: Partial<City>) => {
   const document: Partial<City> = {
-    ...bus,
+    ...city,
     updatedAt: Timestamp.now(),
   };
 

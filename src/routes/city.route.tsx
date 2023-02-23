@@ -1,5 +1,17 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Col, Form, Input, Layout, message, Modal, Popconfirm, Row, Table} from 'antd';
+import {
+  Button,
+  Col,
+  Form,
+  Input,
+  Layout,
+  message,
+  Modal,
+  Popconfirm,
+  Row,
+  Table,
+  Tooltip,
+} from 'antd';
 import {Bus} from '../models/Bus';
 import {Content} from 'antd/es/layout/layout';
 import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
@@ -79,76 +91,68 @@ const CityRoute = () => {
   };
 
   return (
-    <>
-      <Layout style={{paddingLeft: 100, paddingRight: 100, paddingTop: 30}}>
-        <Content>
-          {contextHolder}
-          <Row justify={'center'} gutter={[0, 8]}>
-            <Col span={24} style={{border: '', textAlign: 'right'}}>
-              <Button
-                type={'primary'}
-                icon={<PlusCircleOutlined />}
-                size={'large'}
-                onClick={openModal}>
-                Add
-              </Button>
-            </Col>
-            <Col flex={1}>
-              <Table
-                size={'small'}
-                loading={getCitiesLoading}
-                dataSource={cities}
-                bordered
-                rowKey={'id'}
-                title={() => <h1>Cities</h1>}>
-                <Table.Column<City> title={'Name'} dataIndex={'name'} />
-                <Table.Column<City>
-                  title={'Action'}
-                  key={'action'}
-                  render={(_, record) => (
-                    <ButtonGroup>
-                      <Button
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setSelectedCity(record);
-                          setTimeout(() => {
-                            openModal();
-                          }, 0);
-                        }}
-                      />
-                      <Popconfirm
-                        disabled
-                        title={'Are you sure?'}
-                        placement={'leftTop'}
-                        onConfirm={() => onDelete(record.id)}>
-                        <Button disabled danger icon={<DeleteOutlined />} />
-                      </Popconfirm>
-                    </ButtonGroup>
-                  )}
-                />
-              </Table>
-              <Modal
-                open={open}
-                destroyOnClose
-                maskClosable
-                onCancel={closeModal}
-                onOk={form.submit}
-                confirmLoading={createCityLoading || updateCityLoading}>
-                <h1>Form</h1>
-                <Form form={form} labelCol={{span: 6}} onFinish={onFinish} preserve={false}>
-                  <Form.Item
-                    label={'Name'}
-                    name={'name'}
-                    rules={[{required: true, message: 'Name is required'}]}>
-                    <Input placeholder={'Name'} />
-                  </Form.Item>
-                </Form>
-              </Modal>
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
-    </>
+    <Row justify={'center'} gutter={[0, 8]}>
+      {contextHolder}
+      <Col span={24} style={{border: '', textAlign: 'right'}}>
+        <Button type={'primary'} icon={<PlusCircleOutlined />} size={'large'} onClick={openModal}>
+          Add
+        </Button>
+      </Col>
+      <Col flex={1}>
+        <Table
+          size={'small'}
+          loading={getCitiesLoading}
+          dataSource={cities}
+          bordered
+          rowKey={'id'}
+          title={() => <h1>Cities</h1>}>
+          <Table.Column<City> title={'Name'} dataIndex={'name'} />
+          <Table.Column<City>
+            title={'Action'}
+            key={'action'}
+            render={(_, record) => (
+              <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
+                <ButtonGroup>
+                  <Button
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setSelectedCity(record);
+                      setTimeout(() => {
+                        openModal();
+                      }, 0);
+                    }}
+                  />
+                  <Popconfirm
+                    disabled
+                    title={'Are you sure?'}
+                    placement={'leftTop'}
+                    onConfirm={() => onDelete(record.id)}>
+                    <Button disabled danger icon={<DeleteOutlined />} />
+                  </Popconfirm>
+                </ButtonGroup>
+              </Tooltip>
+            )}
+          />
+        </Table>
+        <Modal
+          open={open}
+          destroyOnClose
+          maskClosable
+          onCancel={closeModal}
+          onOk={form.submit}
+          confirmLoading={createCityLoading || updateCityLoading}>
+          <h1>Form</h1>
+          <Form form={form} labelCol={{span: 6}} onFinish={onFinish} preserve={false}>
+            <Form.Item
+              label={'Name'}
+              name={'name'}
+              rules={[{required: true, message: 'Name is required'}]}>
+              <Input placeholder={'Name'} />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Col>
+    </Row>
   );
 };
 
