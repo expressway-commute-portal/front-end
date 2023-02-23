@@ -5,12 +5,16 @@ import {Bus, FirebaseBus} from '../models/Bus';
 interface State {
   buses: Bus[];
 
+  selectedBus: Bus | undefined;
+
   getBusesLoading: boolean;
+  getBusByIdLoading: boolean;
   createBusLoading: boolean;
   updateBusLoading: boolean;
   deleteBusLoading: boolean;
 
   getBuses: () => Promise<void>;
+  getBusById: (id: string) => Promise<void>;
   createBus: (bus: FirebaseBus) => Promise<void>;
   updateBus: (id: string, bus: Partial<Bus>) => Promise<void>;
   deleteBus: (id: string) => Promise<void>;
@@ -19,7 +23,10 @@ interface State {
 export const useBusStore = create<State>(set => ({
   buses: [],
 
+  selectedBus: undefined,
+
   getBusesLoading: false,
+  getBusByIdLoading: false,
   createBusLoading: false,
   updateBusLoading: false,
   deleteBusLoading: false,
@@ -31,6 +38,15 @@ export const useBusStore = create<State>(set => ({
       set({buses});
     } finally {
       set({getBusesLoading: false});
+    }
+  },
+  getBusById: async (id: string) => {
+    set({getBusByIdLoading: true});
+    try {
+      const bus = await busService.getById(id);
+      set({selectedBus: bus});
+    } finally {
+      set({getBusByIdLoading: false});
     }
   },
   createBus: async (bus: FirebaseBus) => {

@@ -106,127 +106,117 @@ const ScheduleRoute = () => {
   };
 
   return (
-    <>
-      <Layout style={{paddingLeft: 100, paddingRight: 100, paddingTop: 30}}>
-        <Content>
-          {contextHolder}
-          <Row justify={'center'} gutter={[0, 8]}>
-            <Col span={24} style={{border: '', textAlign: 'right'}}>
-              <Button
-                type={'primary'}
-                icon={<PlusCircleOutlined />}
-                size={'large'}
-                onClick={openModal}>
-                Add
-              </Button>
-            </Col>
-            <Col flex={1}>
-              <Table
-                size={'small'}
-                loading={getSchedulesLoading}
-                dataSource={schedulesWithRelations}
-                bordered
-                rowKey={'id'}
-                title={() => <h1>Schedules</h1>}>
-                <Table.Column<ScheduleWithRelations>
-                  title={'Trip Details'}
-                  render={(_, record) =>
-                    `${record.trip?.departureCity.name} -> ${record.trip?.arrivalCity.name}`
-                  }
-                />
-                <Table.Column<ScheduleWithRelations>
-                  title={'Bus Details'}
-                  render={(_, record) => record.bus?.name}
-                />
-                <Table.Column<ScheduleWithRelations>
-                  title={'Departure Time'}
-                  render={(_, record) => getFormattedTimeFromDate(record.departureTime.toDate())}
-                />
-                <Table.Column<ScheduleWithRelations>
-                  title={'Arrival Time'}
-                  render={(_, record) => getFormattedTimeFromDate(record.arrivalTime.toDate())}
-                />
+    <Row justify={'center'} gutter={[0, 8]}>
+      {contextHolder}
+      <Col span={24} style={{border: '', textAlign: 'right'}}>
+        <Button type={'primary'} icon={<PlusCircleOutlined />} size={'large'} onClick={openModal}>
+          Add
+        </Button>
+      </Col>
+      <Col flex={1}>
+        <Table
+          size={'small'}
+          loading={getSchedulesLoading}
+          dataSource={schedulesWithRelations}
+          bordered
+          rowKey={'id'}
+          title={() => <h1>Schedules</h1>}>
+          <Table.Column<ScheduleWithRelations>
+            title={'Trip Details'}
+            render={(_, record) =>
+              `${record.trip?.departureCity.name} -> ${record.trip?.arrivalCity.name}`
+            }
+          />
+          <Table.Column<ScheduleWithRelations>
+            title={'Bus Details'}
+            render={(_, record) => record.bus?.name}
+          />
+          <Table.Column<ScheduleWithRelations>
+            title={'Departure Time'}
+            render={(_, record) => getFormattedTimeFromDate(record.departureTime.toDate())}
+          />
+          <Table.Column<ScheduleWithRelations>
+            title={'Arrival Time'}
+            render={(_, record) => getFormattedTimeFromDate(record.arrivalTime.toDate())}
+          />
 
-                <Table.Column<ScheduleWithRelations>
-                  title={'Action'}
-                  key={'action'}
-                  render={(_, record) => (
-                    <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
-                      <ButtonGroup>
-                        <Button
-                          icon={<EditOutlined />}
-                          onClick={() => {
-                            setSelectedSchedule(record);
-                            setTimeout(() => {
-                              openModal();
-                            }, 0);
-                          }}
-                        />
-                        <Popconfirm
-                          disabled
-                          title={'Are you sure?'}
-                          placement={'leftTop'}
-                          onConfirm={() => onDelete(record.id)}>
-                          <Button disabled danger icon={<DeleteOutlined />} />
-                        </Popconfirm>
-                      </ButtonGroup>
-                    </Tooltip>
-                  )}
-                />
-              </Table>
-              <Modal
-                open={open}
-                destroyOnClose
-                maskClosable
-                onCancel={closeModal}
-                onOk={form.submit}
-                confirmLoading={createScheduleLoading || updateScheduleLoading}>
-                <h1>Form</h1>
-                <Form form={form} labelCol={{span: 7}} onFinish={onFinish} preserve={false}>
-                  <Form.Item
-                    label={'Trip'}
-                    name={'tripId'}
-                    rules={[{required: true, message: 'Trip is required'}]}>
-                    <Select
-                      options={trips.map(trip => ({
-                        label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
-                        value: trip.id,
-                      }))}
-                    />
-                  </Form.Item>
+          <Table.Column<ScheduleWithRelations>
+            title={'Action'}
+            key={'action'}
+            render={(_, record) => (
+              <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
+                <ButtonGroup>
+                  <Button
+                    icon={<EditOutlined />}
+                    onClick={() => {
+                      setSelectedSchedule(record);
+                      setTimeout(() => {
+                        openModal();
+                      }, 0);
+                    }}
+                  />
+                  <Popconfirm
+                    disabled
+                    title={'Are you sure?'}
+                    placement={'leftTop'}
+                    onConfirm={() => onDelete(record.id)}>
+                    <Button disabled danger icon={<DeleteOutlined />} />
+                  </Popconfirm>
+                </ButtonGroup>
+              </Tooltip>
+            )}
+          />
+        </Table>
+        <Modal
+          open={open}
+          destroyOnClose
+          maskClosable
+          onCancel={closeModal}
+          onOk={form.submit}
+          confirmLoading={createScheduleLoading || updateScheduleLoading}>
+          <h1>Form</h1>
+          <Form form={form} labelCol={{span: 7}} onFinish={onFinish} preserve={false}>
+            <Form.Item
+              label={'Trip'}
+              name={'tripId'}
+              rules={[{required: true, message: 'Trip is required'}]}>
+              <Select
+                options={trips.map(trip => ({
+                  label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
+                  value: trip.id,
+                }))}
+              />
+            </Form.Item>
 
-                  <Form.Item
-                    label={'Bus'}
-                    name={'busId'}
-                    rules={[{required: true, message: 'Bus is required'}]}>
-                    <Select
-                      options={buses.map(bus => ({
-                        label: `${bus.name} | ${bus.regNumber}`,
-                        value: bus.id,
-                      }))}
-                    />
-                  </Form.Item>
+            <Form.Item
+              label={'Bus'}
+              name={'busId'}
+              rules={[{required: true, message: 'Bus is required'}]}>
+              <Select
+                options={buses.map(bus => ({
+                  label: `${bus.name} | ${bus.regNumber}`,
+                  value: bus.id,
+                }))}
+              />
+            </Form.Item>
 
-                  <Form.Item
-                    label={'Departure Time'}
-                    name={'departureTime'}
-                    rules={[{required: true, message: 'Departure Time is required'}]}>
-                    <TimePicker use12Hours />
-                  </Form.Item>
+            <Form.Item
+              label={'Departure Time'}
+              name={'departureTime'}
+              rules={[{required: true, message: 'Departure Time is required'}]}>
+              <TimePicker use12Hours />
+            </Form.Item>
 
-                  <Form.Item
-                    label={'Arrival Time'}
-                    name={'arrivalTime'}
-                    rules={[{required: true, message: 'Arrival Time is required'}]}>
-                    <TimePicker use12Hours />
-                  </Form.Item>
-                </Form>
-              </Modal>
-            </Col>
-          </Row>
-        </Content>
-      </Layout>
-    </>
+            <Form.Item
+              label={'Arrival Time'}
+              name={'arrivalTime'}
+              rules={[{required: true, message: 'Arrival Time is required'}]}>
+              <TimePicker use12Hours />
+            </Form.Item>
+          </Form>
+        </Modal>
+      </Col>
+    </Row>
   );
 };
 
