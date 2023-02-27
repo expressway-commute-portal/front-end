@@ -123,26 +123,31 @@ const ScheduleRoute = () => {
           title={() => <h1>Schedules</h1>}>
           <Table.Column<ScheduleWithRelations>
             title={'Trip Details'}
+            align={'center'}
             render={(_, record) =>
               `${record.trip?.departureCity.name} -> ${record.trip?.arrivalCity.name}`
             }
           />
           <Table.Column<ScheduleWithRelations>
             title={'Bus Details'}
+            align={'center'}
             render={(_, record) => record.bus?.name}
           />
           <Table.Column<ScheduleWithRelations>
             title={'Departure Time'}
+            align={'center'}
             render={(_, record) => getFormattedTimeFromDate(record.departureTime.toDate())}
           />
           <Table.Column<ScheduleWithRelations>
             title={'Arrival Time'}
+            align={'center'}
             render={(_, record) => getFormattedTimeFromDate(record.arrivalTime.toDate())}
           />
 
           <Table.Column<ScheduleWithRelations>
             title={'Action'}
             key={'action'}
+            align={'center'}
             render={(_, record) => (
               <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
                 <ButtonGroup>

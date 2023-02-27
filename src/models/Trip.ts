@@ -13,6 +13,8 @@ export interface Trip {
     name: string;
   };
 
+  price: string;
+
   transitCityIds: string[];
 
   createdAt: Timestamp;

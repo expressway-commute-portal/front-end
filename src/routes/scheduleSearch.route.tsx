@@ -1,13 +1,15 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Button, Card, Col, Form, List, Modal, Row, Select} from 'antd';
+import {Button, Card, Col, Descriptions, Form, List, Modal, Row, Select, Space} from 'antd';
 import _debounce from 'lodash/debounce';
 import {useCityStore} from '../store/city.store';
 import {useTripStore} from '../store/trip.store';
 import {useScheduleStore} from '../store/schedule.store';
 import {DateTime} from 'luxon';
+import {useBusStore} from '../store/bus.store';
+import {ArrowRightOutlined} from '@ant-design/icons';
+import {PhoneTwoTone} from '@ant-design/icons';
 
 import '../App.css';
-import {useBusStore} from '../store/bus.store';
 
 function ScheduleSearchRoute() {
   const [departureCity, setDepartureCity] = useState('');
@@ -92,10 +94,7 @@ function ScheduleSearchRoute() {
     <>
       <Row justify={'center'} style={{border: ''}}>
         <Col style={{border: ''}}>
-          <Card
-            title={'Expressway Bus Schedule'}
-            headStyle={{textAlign: 'center'}}
-          >
+          <Card title={'Expressway Bus Schedule'} headStyle={{textAlign: 'center'}}>
             <Form
               labelAlign={'right'}
               labelCol={{span: 10}}
@@ -112,8 +111,7 @@ function ScheduleSearchRoute() {
                   labelInValue
                   placeholder={'Please enter the city name'}
                   onSearch={debouncedDepartureSearch}
-                  onChange={value => setDepartureCity(value.label)}
-                >
+                  onChange={value => setDepartureCity(value.label)}>
                   {departureCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}
@@ -133,8 +131,7 @@ function ScheduleSearchRoute() {
                   labelInValue
                   placeholder={'Please enter the city name'}
                   onSearch={debouncedArrivalSearch}
-                  onChange={value => setArrivalCity(value.label)}
-                >
+                  onChange={value => setArrivalCity(value.label)}>
                   {arrivalCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}
@@ -174,17 +171,24 @@ function ScheduleSearchRoute() {
               renderItem={item => (
                 <List.Item>
                   <Card
-                    title={`${departureCity} --> ${arrivalCity}`}
+                    title={
+                      <>
+                        {departureCity} &nbsp; <ArrowRightOutlined /> &nbsp; {arrivalCity}
+                      </>
+                    }
                     headStyle={{textAlign: 'center'}}
-                    bodyStyle={{textAlign: 'center'}}>
-                    <p>
-                      Departure Time:{' '}
-                      {DateTime.fromJSDate(item.departureTime.toDate()).toFormat('hh:mm a')}
-                    </p>
-                    <p>
-                      Arrival Time:{' '}
-                      {DateTime.fromJSDate(item.arrivalTime.toDate()).toFormat('hh:mm a')}
-                    </p>
+                    bodyStyle={{textAlign: 'center'}}
+                  >
+                    <Descriptions bordered layout={'horizontal'} column={1} size={'small'}>
+                      <Descriptions.Item label="Departure Time">
+                        {DateTime.fromJSDate(item.departureTime.toDate()).toFormat('hh:mm a')}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Arrival Time">
+                        {DateTime.fromJSDate(item.arrivalTime.toDate()).toFormat('hh:mm a')}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Ticket Price"><b>Rs.{trip.price}</b></Descriptions.Item>
+                    </Descriptions>
+                    <br/>
                     {item.busId && (
                       <Button
                         type={'default'}
@@ -200,23 +204,28 @@ function ScheduleSearchRoute() {
         </Row>
       )}
       {selectedBus && (
-        <Modal
-          bodyStyle={{textAlign: 'center'}}
-          title={<div style={{textAlign: 'center'}}>Bus Details</div>}
-          open={open}
-          onCancel={onCloseModal}
-          destroyOnClose
-          maskClosable
-          footer={null}>
-          <p>{selectedBus.name}</p>
-          <p>{selectedBus.regNumber}</p>
-          {selectedBus.contactNumbers.map((no, i) => (
-            <div key={i}>
-              <a href={`tel:${no}`}>{no}</a>
-              <br />
-              <br />
-            </div>
-          ))}
+        <Modal open={open} onCancel={onCloseModal} destroyOnClose maskClosable footer={null}>
+          <Descriptions
+            title={'Bus Details'}
+            bordered
+            layout={'horizontal'}
+            column={1}
+            size={'small'}>
+            <Descriptions.Item label="Name">{selectedBus.name}</Descriptions.Item>
+            <Descriptions.Item label="Registration Number">
+              {selectedBus.regNumber}
+            </Descriptions.Item>
+            <Descriptions.Item label="Contact Number(s)">
+              {selectedBus.contactNumbers.map((no, i) => (
+                <div key={i}>
+                  <Space>
+                    <PhoneTwoTone />
+                    <a href={`tel:${no}`}>{no}</a>
+                  </Space>
+                </div>
+              ))}
+            </Descriptions.Item>
+          </Descriptions>
         </Modal>
       )}
     </>

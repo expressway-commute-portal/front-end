@@ -119,7 +119,7 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
     return <Navigate to="/login" state={{from: location}} replace />;
   }
 
-  if (loggedInUser && adminRoutes.includes(location.pathname) && loggedInUser.role !== 'admin') {
+  if (loggedInUser && adminRoutes.includes(location.pathname) && loggedInUser.role !== 'ADMIN') {
     return <Navigate to="/login" state={{from: location}} replace />;
   }
 
