@@ -20,7 +20,11 @@ import dayjs from 'dayjs';
 
 export async function getSchedulesByTripId(tripId: string) {
   const snap = await getDocs(
-    query(collection(db, FirestoreCollections.Schedule), where('tripId', '==', tripId)),
+    query(
+      collection(db, FirestoreCollections.Schedule),
+      where('tripId', '==', tripId),
+      where('enabled', '==', true),
+    ),
   );
   const schedules: Schedule[] = snap.docs.map(doc => ({
     id: doc.id,
@@ -58,6 +62,7 @@ export const getAllWithRelations = async () => {
 export const create = async (schedule: FirebaseSchedule) => {
   const document = {
     ...schedule,
+    enabled: true,
     createdAt: Timestamp.now(),
     updatedAt: Timestamp.now(),
   };

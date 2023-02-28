@@ -9,6 +9,8 @@ export interface Schedule {
   tripId: string;
   busId?: string;
 
+  enabled: boolean;
+
   transitTimes: {
     cityId: string;
     departureTime: Timestamp;
