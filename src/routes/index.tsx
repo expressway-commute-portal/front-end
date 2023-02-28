@@ -9,11 +9,12 @@ import TripRoute from './trip.route';
 import ScheduleRoute from './schedule.route';
 import {useAuthStore} from '../store/auth.store';
 import AdminLayout from '../components/AdminLayout';
-import {auth} from '../config/firebase';
-import {Spin} from 'antd';
+import {auth, db} from '../config/firebase';
+import {message, Spin} from 'antd';
 import SocialLoginRoute from './socialLogin.route';
 import ScheduleSearchRoute from './scheduleSearch.route';
 import {useUserStore} from '../store/user.store';
+import {enableIndexedDbPersistence} from 'firebase/firestore';
 
 const adminRoutes = ['/schedule', '/bus', '/city', '/trip'];
 
@@ -103,6 +104,22 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
         useUserStore.setState({loggedInUser: undefined});
       }
     });
+  }, []);
+
+  useEffect(() => {
+    enableIndexedDbPersistence(db)
+      .then()
+      .catch(e => {
+        if (e.code === 'failed-precondition') {
+          message.warning(
+            'Multiple tabs open, Offline data access cannot be enabled. Please close all other tabs',
+          );
+        } else if (e.code === 'unimplemented') {
+          message.warning(
+            'This browser does not support offline data access. Please use Chrome, Safari or Firefox',
+          );
+        }
+      });
   }, []);
 
   useEffect(() => {
