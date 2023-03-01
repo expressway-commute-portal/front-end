@@ -19,9 +19,14 @@ import {useTripStore} from '../store/trip.store';
 import {useScheduleStore} from '../store/schedule.store';
 import {DateTime} from 'luxon';
 import {useBusStore} from '../store/bus.store';
-import {ArrowRightOutlined, FacebookFilled, GithubFilled} from '@ant-design/icons';
-import {PhoneTwoTone} from '@ant-design/icons';
-import {UnorderedListOutlined, SearchOutlined} from '@ant-design/icons';
+import {
+  ArrowRightOutlined,
+  FacebookFilled,
+  GithubFilled,
+  PhoneTwoTone,
+  SearchOutlined,
+  UnorderedListOutlined,
+} from '@ant-design/icons';
 import '../App.css';
 import {Content, Footer} from 'antd/es/layout/layout';
 
@@ -106,7 +111,7 @@ function ScheduleSearchRoute() {
 
   return (
     <Layout style={{border: ''}}>
-      <Content>
+      <Content style={{paddingTop: '20px'}}>
         <Row justify={'center'} style={{border: ''}}>
           <Col style={{border: ''}}>
             <Card title={'Expressway Bus Schedule'} headStyle={{textAlign: 'center'}}>
@@ -269,7 +274,7 @@ function ScheduleSearchRoute() {
         <br />
         <br />
         <Typography.Text type={'secondary'} italic>
-          Copyright © 2023 by Express Commute Portal. All Rights Received{' '}
+          Copyright © 2023 by Expressway Commute Portal. All Rights Received{' '}
         </Typography.Text>
       </Footer>
     </Layout>

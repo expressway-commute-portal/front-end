@@ -107,19 +107,21 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
   }, []);
 
   useEffect(() => {
-    enableIndexedDbPersistence(db)
-      .then()
-      .catch(e => {
-        if (e.code === 'failed-precondition') {
-          message.warning(
-            'Multiple tabs open, Offline data access cannot be enabled. Please close all other tabs',
-          );
-        } else if (e.code === 'unimplemented') {
-          message.warning(
-            'This browser does not support offline data access. Please use Chrome, Safari or Firefox',
-          );
-        }
-      });
+    if (import.meta.env.MODE === 'production') {
+      enableIndexedDbPersistence(db)
+        .then()
+        .catch(e => {
+          if (e.code === 'failed-precondition') {
+            message.warning(
+              'Multiple tabs open, Offline data access cannot be enabled. Please close all other tabs',
+            );
+          } else if (e.code === 'unimplemented') {
+            message.warning(
+              'This browser does not support offline data access. Please use Chrome, Safari or Firefox',
+            );
+          }
+        });
+    }
   }, []);
 
   useEffect(() => {
@@ -129,7 +131,11 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
   }, [firebaseUserDetails]);
 
   if (loading) {
-    return <Spin size={'large'} />;
+    return (
+      <div style={{margin: '20px', textAlign: 'center'}}>
+        <Spin size={'large'} tip={'Please wait'} />
+      </div>
+    );
   }
 
   if (!firebaseUserDetails) {
