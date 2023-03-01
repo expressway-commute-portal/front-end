@@ -3,6 +3,8 @@ import {
   Button,
   Col,
   Form,
+  Input,
+  InputNumber,
   Layout,
   message,
   Modal,
@@ -48,6 +50,7 @@ const TripRoute = () => {
       form.setFieldsValue({
         departureCity: selectedTrip.departureCity.id,
         arrivalCity: selectedTrip.arrivalCity.id,
+        price: selectedTrip.price,
       });
     }
   }, [selectedTrip]);
@@ -78,7 +81,7 @@ const TripRoute = () => {
     }
   };
 
-  const transform = (formValues: {departureCity: string; arrivalCity: string}) => {
+  const transform = (formValues: {departureCity: string; arrivalCity: string; price: string}) => {
     const departureCity = cities.find(c => c.id === formValues.departureCity);
     const arrivalCity = cities.find(c => c.id === formValues.arrivalCity);
     if (!departureCity || !arrivalCity) {
@@ -88,6 +91,7 @@ const TripRoute = () => {
     const object = {
       departureCity: {id: departureCity.id, name: departureCity.name},
       arrivalCity: {id: arrivalCity.id, name: arrivalCity.name},
+      price: formValues.price,
     };
     return object;
   };
@@ -144,11 +148,13 @@ const TripRoute = () => {
             bordered
             rowKey={'id'}
             title={() => <h1>Trips</h1>}>
-            <Table.Column<Trip> title={'Departure City'} dataIndex={['departureCity', 'name']} />
-            <Table.Column<Trip> title={'Arrival City'} dataIndex={['arrivalCity', 'name']} />
+            <Table.Column<Trip> title={'Departure City'} align={'center'} dataIndex={['departureCity', 'name']} />
+            <Table.Column<Trip> title={'Arrival City'} align={'center'} dataIndex={['arrivalCity', 'name']} />
+            <Table.Column<Trip> title={'Ticket Price'} align={'right'} render={(_, record) => record.price?.toLocaleString()} />
             <Table.Column<Trip>
               title={'Action'}
               key={'action'}
+              align={'center'}
               render={(_, record) => (
                 <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
                   <ButtonGroup>
@@ -192,6 +198,13 @@ const TripRoute = () => {
                 label={'Arrival City'}
                 rules={[{required: true, message: 'Arrival City is required'}]}>
                 <Select options={cities.map(city => ({label: city.name, value: city.id}))} />
+              </Form.Item>
+
+              <Form.Item
+                label={'Ticket Price'}
+                name={'price'}
+                rules={[{required: true, message: 'Ticket Price is required'}]}>
+                <InputNumber placeholder={'Price'} min={0} />
               </Form.Item>
             </Form>
           </Modal>

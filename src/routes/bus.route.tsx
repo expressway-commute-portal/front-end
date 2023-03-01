@@ -134,16 +134,18 @@ const BusRoute = () => {
             bordered
             rowKey={'id'}
             title={() => <h1>Buses</h1>}>
-            <Table.Column<Bus> title={'Name'} dataIndex={'name'} />
-            <Table.Column<Bus> title={'Reg No'} dataIndex={'regNumber'} />
+            <Table.Column<Bus> title={'Name'} align={'center'} dataIndex={'name'} />
+            <Table.Column<Bus> title={'Reg No'} align={'center'} dataIndex={'regNumber'} />
             <Table.Column<Bus>
               title={'Contact Numbers'}
               dataIndex={'contactNumbers'}
+              align={'center'}
               render={(value: string[]) => value.join(', ')}
             />
             <Table.Column<Bus>
               title={'Action'}
               key={'action'}
+              align={'center'}
               render={(_, record) => (
                 <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
                   <ButtonGroup>

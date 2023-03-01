@@ -29,6 +29,7 @@ const SocialLoginRoute = () => {
         {contextHolder}
         <Card>
           <Button
+            type={'primary'}
             size={'large'}
             loading={googleSignInLoading}
             block

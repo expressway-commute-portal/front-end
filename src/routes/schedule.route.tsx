@@ -9,13 +9,20 @@ import {
   Popconfirm,
   Row,
   Select,
+  Space,
+  Switch,
   Table,
   TimePicker,
   Tooltip,
 } from 'antd';
 import {Bus} from '../models/Bus';
 import {Content} from 'antd/es/layout/layout';
-import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
+import {
+  ArrowRightOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusCircleOutlined,
+} from '@ant-design/icons';
 import ButtonGroup from 'antd/es/button/button-group';
 import {useScheduleStore} from '../store/schedule.store';
 import {Schedule, ScheduleWithRelations} from '../models/Schedule';
@@ -96,6 +103,17 @@ const ScheduleRoute = () => {
     }
   };
 
+  const onEnabledChange = (id: string, checked: boolean) => {
+    updateSchedule(id, {enabled: checked})
+      .then(() => {
+        loadData();
+        return messageApi.success('Success');
+      })
+      .catch(e => {
+        messageApi.error(e.message || e);
+      });
+  };
+
   const openModal = () => {
     setOpen(true);
   };
@@ -123,26 +141,47 @@ const ScheduleRoute = () => {
           title={() => <h1>Schedules</h1>}>
           <Table.Column<ScheduleWithRelations>
             title={'Trip Details'}
-            render={(_, record) =>
-              `${record.trip?.departureCity.name} -> ${record.trip?.arrivalCity.name}`
-            }
+            align={'center'}
+            render={(_, record) => (
+              <Space>
+                <div>{record.trip?.departureCity.name}</div>
+                <ArrowRightOutlined />
+                <div>{record.trip?.arrivalCity.name}</div>
+              </Space>
+            )}
           />
           <Table.Column<ScheduleWithRelations>
             title={'Bus Details'}
+            align={'center'}
             render={(_, record) => record.bus?.name}
           />
           <Table.Column<ScheduleWithRelations>
             title={'Departure Time'}
+            align={'center'}
             render={(_, record) => getFormattedTimeFromDate(record.departureTime.toDate())}
           />
           <Table.Column<ScheduleWithRelations>
             title={'Arrival Time'}
+            align={'center'}
             render={(_, record) => getFormattedTimeFromDate(record.arrivalTime.toDate())}
+          />
+          <Table.Column<ScheduleWithRelations>
+            title={'Enabled'}
+            align={'center'}
+            render={(_, record) => {
+              return (
+                <Switch
+                  checked={record.enabled}
+                  onChange={checked => onEnabledChange(record.id, checked)}
+                />
+              );
+            }}
           />
 
           <Table.Column<ScheduleWithRelations>
             title={'Action'}
             key={'action'}
+            align={'center'}
             render={(_, record) => (
               <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
                 <ButtonGroup>
@@ -182,7 +221,13 @@ const ScheduleRoute = () => {
               rules={[{required: true, message: 'Trip is required'}]}>
               <Select
                 options={trips.map(trip => ({
-                  label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
+                  label: (
+                    <Space>
+                      <div>{trip.departureCity.name}</div>
+                      <ArrowRightOutlined />
+                      <div>{trip.arrivalCity.name}</div>
+                    </Space>
+                  ),
                   value: trip.id,
                 }))}
               />

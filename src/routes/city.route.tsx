@@ -106,10 +106,11 @@ const CityRoute = () => {
           bordered
           rowKey={'id'}
           title={() => <h1>Cities</h1>}>
-          <Table.Column<City> title={'Name'} dataIndex={'name'} />
+          <Table.Column<City> title={'Name'} dataIndex={'name'}  align={'center'} />
           <Table.Column<City>
             title={'Action'}
             key={'action'}
+            align={'center'}
             render={(_, record) => (
               <Tooltip title={`${record.id}`} mouseEnterDelay={2}>
                 <ButtonGroup>

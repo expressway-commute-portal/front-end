@@ -9,11 +9,12 @@ import TripRoute from './trip.route';
 import ScheduleRoute from './schedule.route';
 import {useAuthStore} from '../store/auth.store';
 import AdminLayout from '../components/AdminLayout';
-import {auth} from '../config/firebase';
-import {Spin} from 'antd';
+import {auth, db} from '../config/firebase';
+import {message, Spin} from 'antd';
 import SocialLoginRoute from './socialLogin.route';
 import ScheduleSearchRoute from './scheduleSearch.route';
 import {useUserStore} from '../store/user.store';
+import {enableIndexedDbPersistence} from 'firebase/firestore';
 
 const adminRoutes = ['/schedule', '/bus', '/city', '/trip'];
 
@@ -106,20 +107,42 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
   }, []);
 
   useEffect(() => {
+    if (import.meta.env.MODE === 'production') {
+      enableIndexedDbPersistence(db)
+        .then()
+        .catch(e => {
+          if (e.code === 'failed-precondition') {
+            message.warning(
+              'Multiple tabs open, Offline data access cannot be enabled. Please close all other tabs',
+            );
+          } else if (e.code === 'unimplemented') {
+            message.warning(
+              'This browser does not support offline data access. Please use Chrome, Safari or Firefox',
+            );
+          }
+        });
+    }
+  }, []);
+
+  useEffect(() => {
     if (firebaseUserDetails) {
       getLoggedInUser(firebaseUserDetails.uid).then().catch();
     }
   }, [firebaseUserDetails]);
 
   if (loading) {
-    return <Spin size={'large'} />;
+    return (
+      <div style={{margin: '20px', textAlign: 'center'}}>
+        <Spin size={'large'} tip={'Please wait'} />
+      </div>
+    );
   }
 
   if (!firebaseUserDetails) {
     return <Navigate to="/login" state={{from: location}} replace />;
   }
 
-  if (loggedInUser && adminRoutes.includes(location.pathname) && loggedInUser.role !== 'admin') {
+  if (loggedInUser && adminRoutes.includes(location.pathname) && loggedInUser.role !== 'ADMIN') {
     return <Navigate to="/login" state={{from: location}} replace />;
   }
 
