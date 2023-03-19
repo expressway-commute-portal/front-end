@@ -209,7 +209,7 @@ const BusRoute = () => {
                             rules={[
                               {
                                 required: true,
-                                whitespace: true,
+                                // whitespace: true,
                                 message: 'Please input contact number or delete this field.',
                               },
                             ]}

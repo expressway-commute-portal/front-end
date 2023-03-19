@@ -27,9 +27,9 @@ const SocialLoginRoute = () => {
     <Row justify={'center'}>
       <Col xs={24} sm={20} md={16} lg={12} xl={6} xxl={4} style={{marginTop: 20}}>
         {contextHolder}
-        <Card>
+        <Card cover={<img src={'/pwa-512x512.png'}/>}>
           <Button
-            type={'primary'}
+            type={'default'}
             size={'large'}
             loading={googleSignInLoading}
             block
