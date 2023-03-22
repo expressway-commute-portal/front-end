@@ -5,7 +5,6 @@ import {
   Form,
   Input,
   InputNumber,
-  Layout,
   message,
   Modal,
   Popconfirm,
@@ -15,7 +14,6 @@ import {
 } from 'antd';
 import {useBusStore} from '../store/bus.store';
 import {Bus} from '../models/Bus';
-import {Content} from 'antd/es/layout/layout';
 import {
   DeleteOutlined,
   EditOutlined,

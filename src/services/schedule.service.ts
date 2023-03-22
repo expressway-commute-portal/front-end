@@ -1,43 +1,45 @@
 import {
-  collection,
-  getDocs,
-  limit,
-  query,
-  where,
-  orderBy,
   addDoc,
-  Timestamp,
+  collection,
   doc,
+  getDocs,
+  query,
+  Timestamp,
   updateDoc,
+  where,
+  getDoc,
 } from 'firebase/firestore';
 import {db} from '../config/firebase';
 import {FirestoreCollections} from '../models';
-import {FirebaseSchedule, Schedule, ScheduleWithRelations} from '../models/Schedule';
+import {
+  CreateFirebaseSchedule,
+  Schedule,
+  scheduleConverter,
+  ScheduleWithRelations,
+} from '../models/Schedule';
 import * as tripService from './trip.service';
 import * as busService from './bus.service';
 import {timeOnlyCompare} from '../util';
 import dayjs from 'dayjs';
 
+const scheduleCollection = collection(db, FirestoreCollections.Schedule).withConverter(
+  scheduleConverter,
+);
+
 export async function getSchedulesByTripId(tripId: string) {
   const snap = await getDocs(
-    query(
-      collection(db, FirestoreCollections.Schedule),
-      where('tripId', '==', tripId),
-      where('enabled', '==', true),
-    ),
+    query(scheduleCollection, where('tripId', '==', tripId), where('enabled', '==', true)),
   );
-  const schedules: Schedule[] = snap.docs.map(doc => ({
-    id: doc.id,
-    ...(doc.data() as FirebaseSchedule),
-  }));
-  return schedules;
+  return snap.docs.map(doc => ({
+    ...doc.data(),
+  })) as Schedule[];
 }
 
 export const getAllWithRelations = async () => {
-  const snap = await getDocs(query(collection(db, FirestoreCollections.Schedule)));
+  const snap = await getDocs(query(scheduleCollection));
   const schedules: ScheduleWithRelations[] = await Promise.all(
     snap.docs.map(async doc => {
-      const schedule: ScheduleWithRelations = {id: doc.id, ...doc.data()} as Schedule;
+      const schedule: ScheduleWithRelations = doc.data();
 
       const trip = await tripService.getById(schedule.tripId);
       trip && (schedule.trip = trip);
@@ -53,13 +55,31 @@ export const getAllWithRelations = async () => {
   schedules.sort((a, b) => {
     return (
       a.tripId.localeCompare(b.tripId) ||
-      timeOnlyCompare(dayjs(a.departureTime.toDate()), dayjs(b.departureTime.toDate()))
+      timeOnlyCompare(dayjs(a.departureTime), dayjs(b.departureTime))
     );
   });
   return schedules;
 };
 
-export const create = async (schedule: FirebaseSchedule) => {
+export const getByIdWithRelations = async (id: string) => {
+  const snapshot = await getDoc(
+    doc(db, FirestoreCollections.Schedule, id).withConverter(scheduleConverter),
+  );
+  if (snapshot.exists()) {
+    const schedule: ScheduleWithRelations = snapshot.data();
+
+    const trip = await tripService.getById(schedule.tripId);
+    trip && (schedule.trip = trip);
+
+    if (schedule.busId) {
+      const bus = await busService.getById(schedule.busId);
+      bus && (schedule.bus = bus);
+    }
+    return schedule;
+  }
+};
+
+export const create = async (schedule: CreateFirebaseSchedule) => {
   const document = {
     ...schedule,
     enabled: true,
@@ -67,7 +87,8 @@ export const create = async (schedule: FirebaseSchedule) => {
     updatedAt: Timestamp.now(),
   };
 
-  await addDoc(collection(db, FirestoreCollections.Schedule), document);
+  const reference = await addDoc(scheduleCollection, document);
+  return reference.id;
 };
 
 export const update = async (id: string, schedule: Partial<Schedule>) => {

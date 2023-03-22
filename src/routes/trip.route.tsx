@@ -3,9 +3,7 @@ import {
   Button,
   Col,
   Form,
-  Input,
   InputNumber,
-  Layout,
   message,
   Modal,
   Popconfirm,
@@ -14,7 +12,6 @@ import {
   Table,
   Tooltip,
 } from 'antd';
-import {Content} from 'antd/es/layout/layout';
 import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
 import ButtonGroup from 'antd/es/button/button-group';
 import {useTripStore} from '../store/trip.store';
@@ -148,9 +145,21 @@ const TripRoute = () => {
             bordered
             rowKey={'id'}
             title={() => <h1>Trips</h1>}>
-            <Table.Column<Trip> title={'Departure City'} align={'center'} dataIndex={['departureCity', 'name']} />
-            <Table.Column<Trip> title={'Arrival City'} align={'center'} dataIndex={['arrivalCity', 'name']} />
-            <Table.Column<Trip> title={'Ticket Price'} align={'right'} render={(_, record) => record.price?.toLocaleString()} />
+            <Table.Column<Trip>
+              title={'Departure City'}
+              align={'center'}
+              dataIndex={['departureCity', 'name']}
+            />
+            <Table.Column<Trip>
+              title={'Arrival City'}
+              align={'center'}
+              dataIndex={['arrivalCity', 'name']}
+            />
+            <Table.Column<Trip>
+              title={'Ticket Price'}
+              align={'right'}
+              render={(_, record) => record.price?.toLocaleString()}
+            />
             <Table.Column<Trip>
               title={'Action'}
               key={'action'}
@@ -190,14 +199,22 @@ const TripRoute = () => {
                 name={'departureCity'}
                 label={'Departure City'}
                 rules={[{required: true, message: 'Departure City is required'}]}>
-                <Select options={cities.map(city => ({label: city.name, value: city.id}))} />
+                <Select
+                  showSearch
+                  optionFilterProp={'label'}
+                  options={cities.map(city => ({label: city.name, value: city.id}))}
+                />
               </Form.Item>
 
               <Form.Item
                 name={'arrivalCity'}
                 label={'Arrival City'}
                 rules={[{required: true, message: 'Arrival City is required'}]}>
-                <Select options={cities.map(city => ({label: city.name, value: city.id}))} />
+                <Select
+                  showSearch
+                  optionFilterProp={'label'}
+                  options={cities.map(city => ({label: city.name, value: city.id}))}
+                />
               </Form.Item>
 
               <Form.Item

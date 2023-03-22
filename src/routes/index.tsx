@@ -15,6 +15,7 @@ import SocialLoginRoute from './socialLogin.route';
 import ScheduleSearchRoute from './scheduleSearch.route';
 import {useUserStore} from '../store/user.store';
 import {enableIndexedDbPersistence} from 'firebase/firestore';
+import UserLayout from '../components/UserLayout/UserLayout';
 
 const adminRoutes = ['/schedule', '/bus', '/city', '/trip'];
 
@@ -23,7 +24,9 @@ const router = createBrowserRouter([
     path: '/',
     element: (
       <AuthenticationRoute>
-        <ScheduleSearchRoute />
+        <UserLayout>
+          <ScheduleSearchRoute />
+        </UserLayout>
       </AuthenticationRoute>
     ),
     errorElement: <h1>404 Error Page</h1>,
@@ -108,19 +111,23 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
 
   useEffect(() => {
     if (import.meta.env.MODE === 'production') {
-      enableIndexedDbPersistence(db)
-        .then()
-        .catch(e => {
-          if (e.code === 'failed-precondition') {
-            message.warning(
-              'Multiple tabs open, Offline data access cannot be enabled. Please close all other tabs',
-            );
-          } else if (e.code === 'unimplemented') {
-            message.warning(
-              'This browser does not support offline data access. Please use Chrome, Safari or Firefox',
-            );
-          }
-        });
+      try {
+        enableIndexedDbPersistence(db)
+          .then()
+          .catch(e => {
+            if (e.code === 'failed-precondition') {
+              message.warning(
+                'Multiple tabs open, Offline data access cannot be enabled. Please close all other tabs',
+              );
+            } else if (e.code === 'unimplemented') {
+              message.warning(
+                'This browser does not support offline data access. Please use Chrome, Safari or Firefox',
+              );
+            }
+          });
+      } catch (e) {
+        console.log(e);
+      }
     }
   }, []);
 

@@ -1,17 +1,7 @@
-import {
-  collection,
-  getDocs,
-  query,
-  deleteDoc,
-  doc,
-  updateDoc,
-  Timestamp,
-  addDoc,
-  getDoc,
-} from 'firebase/firestore';
-import {db} from '../config/firebase';
-import {FirestoreCollections} from '../models';
-import {Bus, FirebaseBus} from '../models/Bus';
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, query, Timestamp, updateDoc } from "firebase/firestore";
+import { db } from "../config/firebase";
+import { FirestoreCollections } from "../models";
+import { Bus, FirebaseBus } from "../models/Bus";
 
 export const getAll = async () => {
   const snap = await getDocs(query(collection(db, FirestoreCollections.Bus)));

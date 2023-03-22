@@ -11,41 +11,37 @@ import {
   where,
 } from 'firebase/firestore';
 import {db} from '../config/firebase';
-import {City, FirebaseCity} from '../models/City';
+import {City, cityConverter, FirebaseCity} from '../models/City';
 import {FirestoreCollections} from '../models';
+
+const cityCollection = collection(db, FirestoreCollections.City).withConverter(cityConverter);
 
 export const getAllByName = async (name: string) => {
   name = name.charAt(0).toUpperCase() + name.slice(1);
   // some kind of hack to search for cities starting with a given name - https://stackoverflow.com/a/57290806/12158534
   const end = name.replace(/.$/, c => String.fromCharCode(c.charCodeAt(0) + 1));
-  const snap = await getDocs(
-    query(
-      collection(db, FirestoreCollections.City),
-      where('name', '>=', name),
-      where('name', '<', end),
-    ),
-  );
-  const cities: City[] = snap.docs.map(doc => ({
-    id: doc.id,
-    ...(doc.data() as FirebaseCity),
-  }));
 
-  return cities;
+  const snap = await getDocs(
+    query(cityCollection, where('name', '>=', name), where('name', '<', end)),
+  );
+  return snap.docs.map(doc => ({
+    ...doc.data(),
+  })) as City[];
 };
 
 export const getAll = async () => {
-  const snap = await getDocs(query(collection(db, FirestoreCollections.City)));
-  const cities: City[] = snap.docs.map(doc => ({
-    id: doc.id,
-    ...(doc.data() as FirebaseCity),
-  }));
-  return cities;
+  const snap = await getDocs(query(cityCollection));
+  return snap.docs.map(doc => ({
+    ...doc.data(),
+  })) as City[];
 };
 
 export const getById = async (id: string) => {
-  const snapshot = await getDoc(doc(db, FirestoreCollections.City, id));
+  const snapshot = await getDoc(
+    doc(db, FirestoreCollections.City, id).withConverter(cityConverter),
+  );
   if (snapshot.exists()) {
-    return {id: snapshot.id, ...snapshot.data()} as City;
+    return snapshot.data();
   }
 };
 
@@ -56,7 +52,7 @@ export const create = async (firebaseCity: FirebaseCity) => {
     updatedAt: Timestamp.now(),
   };
 
-  await addDoc(collection(db, FirestoreCollections.City), document as any);
+  await addDoc(collection(db, FirestoreCollections.City).withConverter(cityConverter), document);
 };
 
 export const update = async (id: string, city: Partial<City>) => {

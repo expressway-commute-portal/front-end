@@ -1,19 +1,6 @@
 import React, {useEffect, useState} from 'react';
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Layout,
-  message,
-  Modal,
-  Popconfirm,
-  Row,
-  Table,
-  Tooltip,
-} from 'antd';
+import {Button, Col, Form, Input, message, Modal, Popconfirm, Row, Table, Tooltip} from 'antd';
 import {Bus} from '../models/Bus';
-import {Content} from 'antd/es/layout/layout';
 import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
 import ButtonGroup from 'antd/es/button/button-group';
 import {City} from '../models/City';
@@ -106,7 +93,7 @@ const CityRoute = () => {
           bordered
           rowKey={'id'}
           title={() => <h1>Cities</h1>}>
-          <Table.Column<City> title={'Name'} dataIndex={'name'}  align={'center'} />
+          <Table.Column<City> title={'Name'} dataIndex={'name'} align={'center'} />
           <Table.Column<City>
             title={'Action'}
             key={'action'}

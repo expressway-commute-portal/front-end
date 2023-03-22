@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {Button, Layout, Menu, MenuProps} from 'antd';
+import {Button, Layout, Menu, MenuProps, Space, Typography} from 'antd';
 import {Link, useLocation} from 'react-router-dom';
-import './AdminLayout.css';
-import {useAuthStore} from '../store/auth.store';
+import './index.css';
+import {useAuthStore} from '../../store/auth.store';
+import {FacebookFilled, GithubFilled} from '@ant-design/icons';
 
 const {Header, Content, Footer} = Layout;
 
@@ -21,7 +22,7 @@ const AdminLayout = ({children}: {children: JSX.Element}) => {
   };
 
   return (
-    <Layout className="layout">
+    <Layout>
       <Header>
         <div className="logo" />
         <Menu theme="dark" mode="horizontal" selectedKeys={[currentPage]} onClick={onClick}>
@@ -45,7 +46,31 @@ const AdminLayout = ({children}: {children: JSX.Element}) => {
       <Content style={{padding: '0 50px'}}>
         <div className="site-layout-content">{children}</div>
       </Content>
-      <Footer style={{textAlign: 'center'}}>Ant Design ©2023 Created by Ant UED</Footer>
+      <Footer style={{textAlign: 'center'}}>
+        <Space direction={'horizontal'}>
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<FacebookFilled />}
+            size={'large'}
+            href={'https://www.facebook.com/groups/Highway.Bus.Sri.Lanka'}
+            target={'_blank'}
+          />
+          <Button
+            type="primary"
+            shape="circle"
+            icon={<GithubFilled />}
+            size={'large'}
+            href={'https://github.com/expressway-commute-portal'}
+            target={'_blank'}
+          />
+        </Space>
+        <br />
+        <br />
+        <Typography.Text type={'secondary'} italic>
+          Copyright © 2023 by Expressway Commute Portal. All Rights Received{' '}
+        </Typography.Text>
+      </Footer>
     </Layout>
   );
 };

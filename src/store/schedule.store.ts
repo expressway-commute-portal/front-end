@@ -1,6 +1,6 @@
 import {create} from 'zustand';
 import * as scheduleService from '../services/schedule.service';
-import {FirebaseSchedule, Schedule, ScheduleWithRelations} from '../models/Schedule';
+import {CreateFirebaseSchedule, Schedule, ScheduleWithRelations} from '../models/Schedule';
 import {useTripStore} from './trip.store';
 
 interface State {
@@ -12,7 +12,7 @@ interface State {
   updateScheduleLoading: boolean;
 
   getSchedules: () => Promise<void>;
-  createSchedule: (schedule: FirebaseSchedule) => Promise<void>;
+  createSchedule: (schedule: CreateFirebaseSchedule) => Promise<void>;
   updateSchedule: (id: string, schedule: Partial<Schedule>) => Promise<void>;
 
   getSchedulesWithRelations: () => Promise<void>;
@@ -38,10 +38,14 @@ export const useScheduleStore = create<State>((set, get) => ({
       set({getSchedulesLoading: false});
     }
   },
-  createSchedule: async (schedule: FirebaseSchedule) => {
+  createSchedule: async (schedule: CreateFirebaseSchedule) => {
     set({createScheduleLoading: true});
     try {
-      await scheduleService.create(schedule);
+      const id = await scheduleService.create(schedule);
+      const createdSchedule = await scheduleService.getByIdWithRelations(id);
+      if (createdSchedule) {
+        set({schedulesWithRelations: [...get().schedulesWithRelations, createdSchedule]});
+      }
     } finally {
       set({createScheduleLoading: false});
     }
@@ -50,6 +54,11 @@ export const useScheduleStore = create<State>((set, get) => ({
     set({updateScheduleLoading: true});
     try {
       await scheduleService.update(id, schedule);
+      set(state => ({
+        schedulesWithRelations: state.schedulesWithRelations.map(s =>
+          s.id === id ? {...s, ...schedule} : s,
+        ),
+      }));
     } finally {
       set({updateScheduleLoading: false});
     }
