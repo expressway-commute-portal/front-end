@@ -44,14 +44,25 @@ const ScheduleRoute = () => {
   const createSchedule = useScheduleStore(state => state.createSchedule);
   const updateSchedule = useScheduleStore(state => state.updateSchedule);
 
+  const filter = useScheduleStore(state => state.filter);
+
   const trips = useTripStore(state => state.trips);
   const getTrips = useTripStore(state => state.getTrips);
 
   const buses = useBusStore(state => state.buses);
   const getBuses = useBusStore(state => state.getBuses);
 
+  const [filteredSchedulesWithRelations, setFilteredSchedulesWithRelations] = useState<
+    ScheduleWithRelations[]
+  >([]);
+
   const [open, setOpen] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | undefined>();
+  const [selectedScheduleId, setSelectedScheduleId] = useState('');
+
+  const [busSearchValue, setBusSearchValue] = useState('');
+  const [tripSearchValue, setTripSearchValue] = useState('');
+  const [enabledSearchValue, setEnabledSearchValue] = useState(true);
 
   useEffect(() => {
     loadSchedulesWithRelations();
@@ -69,6 +80,17 @@ const ScheduleRoute = () => {
       });
     }
   }, [selectedSchedule]);
+
+  useEffect(() => {
+    const filtered = schedulesWithRelations.filter(s => {
+      return (
+        (!busSearchValue || s.bus?.name.toLowerCase().includes(busSearchValue.toLowerCase())) &&
+        (!tripSearchValue || s.tripId === tripSearchValue) &&
+        s.enabled === enabledSearchValue
+      );
+    });
+    setFilteredSchedulesWithRelations(filtered);
+  }, [busSearchValue, tripSearchValue, enabledSearchValue, schedulesWithRelations]);
 
   const loadSchedulesWithRelations = () => {
     getSchedulesWithRelations().then().catch(handleErrors);
@@ -104,15 +126,16 @@ const ScheduleRoute = () => {
     }
   };
 
-  const onEnabledChange = (id: string, checked: boolean) => {
-    updateSchedule(id, {enabled: checked})
-      .then(() => {
-        // loadSchedulesWithRelations();
-        return messageApi.success('Success');
-      })
-      .catch(e => {
-        messageApi.error(e.message || e);
-      });
+  const onEnabledChange = async (id: string, checked: boolean) => {
+    setSelectedScheduleId(id);
+    try {
+      await updateSchedule(id, {enabled: checked});
+      messageApi.success('Success');
+    } catch (e) {
+      messageApi.error(e.message || e);
+    } finally {
+      setSelectedScheduleId('');
+    }
   };
 
   const openModal = () => {
@@ -144,14 +167,21 @@ const ScheduleRoute = () => {
                 label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
                 value: trip.id,
               }))}
+              onChange={setTripSearchValue}
             />
           </Col>
           <Col span={6}>
-            <Input allowClear placeholder={'Search by Bus Name'} style={{width: '70%'}} />
+            <Input.Search
+              allowClear
+              placeholder={'Search by Bus Name'}
+              style={{width: '70%'}}
+              onSearch={setBusSearchValue}
+              enterButton
+            />
           </Col>
           <Col span={6}>
             Enabled &nbsp;
-            <Switch defaultChecked={true} />
+            <Switch defaultChecked={true} onClick={setEnabledSearchValue} />
           </Col>
           <Col span={6} style={{border: '', textAlign: 'right'}}>
             <Button
@@ -169,7 +199,7 @@ const ScheduleRoute = () => {
           <Table
             size={'small'}
             loading={getSchedulesLoading}
-            dataSource={schedulesWithRelations}
+            dataSource={filteredSchedulesWithRelations}
             bordered
             rowKey={'id'}
             title={() => <h1>Schedules</h1>}>
@@ -207,7 +237,7 @@ const ScheduleRoute = () => {
                   <Switch
                     checked={record.enabled}
                     onChange={checked => onEnabledChange(record.id, checked)}
-                    loading={updateScheduleLoading && selectedSchedule?.id === record.id}
+                    loading={updateScheduleLoading && selectedScheduleId === record.id}
                   />
                 );
               }}

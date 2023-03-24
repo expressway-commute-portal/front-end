@@ -21,6 +21,8 @@ import * as tripService from './trip.service';
 import * as busService from './bus.service';
 import {timeOnlyCompare} from '../util';
 import dayjs from 'dayjs';
+import {Trip} from '../models/Trip';
+import {Bus} from '../models/Bus';
 
 const scheduleCollection = collection(db, FirestoreCollections.Schedule).withConverter(
   scheduleConverter,
@@ -37,6 +39,7 @@ export async function getSchedulesByTripId(tripId: string) {
 
 export const getAllWithRelations = async () => {
   const snap = await getDocs(query(scheduleCollection));
+
   const schedules: ScheduleWithRelations[] = await Promise.all(
     snap.docs.map(async doc => {
       const schedule: ScheduleWithRelations = doc.data();

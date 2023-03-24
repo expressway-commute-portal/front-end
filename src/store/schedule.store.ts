@@ -1,4 +1,5 @@
 import {create} from 'zustand';
+import {devtools} from 'zustand/middleware';
 import * as scheduleService from '../services/schedule.service';
 import {CreateFirebaseSchedule, Schedule, ScheduleWithRelations} from '../models/Schedule';
 import {useTripStore} from './trip.store';
@@ -6,6 +7,7 @@ import {useTripStore} from './trip.store';
 interface State {
   schedules: Schedule[];
   schedulesWithRelations: ScheduleWithRelations[];
+  filteredSchedulesWithRelations: ScheduleWithRelations[];
 
   getSchedulesLoading: boolean;
   createScheduleLoading: boolean;
@@ -16,60 +18,79 @@ interface State {
   updateSchedule: (id: string, schedule: Partial<Schedule>) => Promise<void>;
 
   getSchedulesWithRelations: () => Promise<void>;
+
+  filter: (busName: string, tripId: string, enabled: boolean) => void;
 }
 
-export const useScheduleStore = create<State>((set, get) => ({
-  schedules: [],
-  schedulesWithRelations: [],
+export const useScheduleStore = create<State>()(
+  devtools((set, get) => ({
+    schedules: [],
+    schedulesWithRelations: [],
+    filteredSchedulesWithRelations: [],
 
-  getSchedulesLoading: false,
-  createScheduleLoading: false,
-  updateScheduleLoading: false,
+    getSchedulesLoading: false,
+    createScheduleLoading: false,
+    updateScheduleLoading: false,
 
-  getSchedules: async () => {
-    set({getSchedulesLoading: true});
-    try {
-      const trip = useTripStore.getState().trip;
-      if (trip) {
-        const schedules = await scheduleService.getSchedulesByTripId(trip.id);
-        set({schedules});
+    getSchedules: async () => {
+      set({getSchedulesLoading: true});
+      try {
+        const trip = useTripStore.getState().trip;
+        if (trip) {
+          const schedules = await scheduleService.getSchedulesByTripId(trip.id);
+          set({schedules});
+        }
+      } finally {
+        set({getSchedulesLoading: false});
       }
-    } finally {
-      set({getSchedulesLoading: false});
-    }
-  },
-  createSchedule: async (schedule: CreateFirebaseSchedule) => {
-    set({createScheduleLoading: true});
-    try {
-      const id = await scheduleService.create(schedule);
-      const createdSchedule = await scheduleService.getByIdWithRelations(id);
-      if (createdSchedule) {
-        set({schedulesWithRelations: [...get().schedulesWithRelations, createdSchedule]});
+    },
+    createSchedule: async (schedule: CreateFirebaseSchedule) => {
+      set({createScheduleLoading: true});
+      try {
+        const id = await scheduleService.create(schedule);
+        const createdSchedule = await scheduleService.getByIdWithRelations(id);
+        if (createdSchedule) {
+          set({schedulesWithRelations: [...get().schedulesWithRelations, createdSchedule]});
+        }
+      } finally {
+        set({createScheduleLoading: false});
       }
-    } finally {
-      set({createScheduleLoading: false});
-    }
-  },
-  updateSchedule: async (id: string, schedule: Partial<Schedule>) => {
-    set({updateScheduleLoading: true});
-    try {
-      await scheduleService.update(id, schedule);
-      set(state => ({
-        schedulesWithRelations: state.schedulesWithRelations.map(s =>
-          s.id === id ? {...s, ...schedule} : s,
-        ),
-      }));
-    } finally {
-      set({updateScheduleLoading: false});
-    }
-  },
-  getSchedulesWithRelations: async () => {
-    set({getSchedulesLoading: true});
-    try {
-      const schedules = await scheduleService.getAllWithRelations();
-      set({schedulesWithRelations: schedules});
-    } finally {
-      set({getSchedulesLoading: false});
-    }
-  },
-}));
+    },
+    updateSchedule: async (id: string, schedule: Partial<Schedule>) => {
+      set({updateScheduleLoading: true});
+      try {
+        await scheduleService.update(id, schedule);
+        const updatedSchedule = await scheduleService.getByIdWithRelations(id);
+        if (updatedSchedule) {
+          set(state => ({
+            schedulesWithRelations: state.schedulesWithRelations.map(s =>
+              s.id === id ? updatedSchedule : s,
+            ),
+          }));
+        }
+      } finally {
+        set({updateScheduleLoading: false});
+      }
+    },
+    getSchedulesWithRelations: async () => {
+      set({getSchedulesLoading: true});
+      try {
+        const schedules = await scheduleService.getAllWithRelations();
+        set({schedulesWithRelations: schedules});
+      } finally {
+        set({getSchedulesLoading: false});
+      }
+    },
+
+    filter: (busName: string, tripId: string, enabled: boolean) => {
+      const schedules = get().schedulesWithRelations;
+      const filteredSchedules = schedules.filter(
+        s =>
+          (!busName || s.bus?.name.toLowerCase().includes(busName.toLowerCase())) &&
+          (!tripId || s.tripId === tripId) &&
+          s.enabled === enabled,
+      );
+      set({filteredSchedulesWithRelations: filteredSchedules});
+    },
+  })),
+);
