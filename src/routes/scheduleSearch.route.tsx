@@ -13,6 +13,7 @@ import {
   UnorderedListOutlined,
 } from '@ant-design/icons';
 import '../App.css';
+import {Schedule} from '../models/Schedule';
 
 function ScheduleSearchRoute() {
   const [departureCity, setDepartureCity] = useState('');
@@ -41,9 +42,11 @@ function ScheduleSearchRoute() {
   const schedules = useScheduleStore(state => state.schedules);
   const getSchedulesLoading = useScheduleStore(state => state.getSchedulesLoading);
   const getSchedules = useScheduleStore(state => state.getSchedules);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | undefined>();
 
   const selectedBus = useBusStore(state => state.selectedBus);
   const getBusById = useBusStore(state => state.getBusById);
+  const getBusByIdLoading = useBusStore(state => state.getBusByIdLoading);
 
   const onDepartureSearch = async (value: string) => {
     if (value) {
@@ -84,8 +87,11 @@ function ScheduleSearchRoute() {
     await getSchedules();
   };
 
-  const onBusDetailsButtonClick = async (id: string) => {
-    await getBusById(id);
+  const onBusDetailsButtonClick = async (schedule: Schedule) => {
+    setSelectedSchedule(schedule);
+    if (schedule.busId) {
+      await getBusById(schedule.busId);
+    }
     setOpen(true);
   };
 
@@ -197,8 +203,9 @@ function ScheduleSearchRoute() {
                     {item.busId && (
                       <Button
                         type={'default'}
-                        onClick={() => onBusDetailsButtonClick(item.busId || '')}
-                        icon={<UnorderedListOutlined />}>
+                        onClick={() => onBusDetailsButtonClick(item)}
+                        icon={<UnorderedListOutlined />}
+                        loading={getBusByIdLoading && selectedSchedule?.id === item.id}>
                         Bus Details
                       </Button>
                     )}
