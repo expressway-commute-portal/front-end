@@ -2,12 +2,13 @@ import {
   addDoc,
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
+  QueryDocumentSnapshot,
   Timestamp,
   updateDoc,
   where,
-  getDoc,
 } from 'firebase/firestore';
 import {db} from '../config/firebase';
 import {FirestoreCollections} from '../models';
@@ -32,27 +33,20 @@ export async function getSchedulesByTripId(tripId: string) {
   const snap = await getDocs(
     query(scheduleCollection, where('tripId', '==', tripId), where('enabled', '==', true)),
   );
-  return snap.docs.map(doc => ({
+  const schedules = snap.docs.map(doc => ({
     ...doc.data(),
   })) as Schedule[];
+  schedules.sort((a, b) => timeOnlyCompare(dayjs(a.departureTime), dayjs(b.departureTime)));
+  return schedules;
 }
 
 export const getAllWithRelations = async () => {
   const snap = await getDocs(query(scheduleCollection));
 
+  const tripCache = new Map<string, Trip>();
+  const busCache = new Map<string, Bus>();
   const schedules: ScheduleWithRelations[] = await Promise.all(
-    snap.docs.map(async doc => {
-      const schedule: ScheduleWithRelations = doc.data();
-
-      const trip = await tripService.getById(schedule.tripId);
-      trip && (schedule.trip = trip);
-
-      if (schedule.busId) {
-        const bus = await busService.getById(schedule.busId);
-        bus && (schedule.bus = bus);
-      }
-      return schedule;
-    }),
+    snap.docs.map(doc => fetchRelations(doc, tripCache, busCache)),
   );
 
   schedules.sort((a, b) => {
@@ -102,3 +96,34 @@ export const update = async (id: string, schedule: Partial<Schedule>) => {
 
   await updateDoc(doc(db, FirestoreCollections.Schedule, id), document);
 };
+
+async function fetchRelations(
+  doc: QueryDocumentSnapshot<Schedule>,
+  tripCache: Map<string, Trip>,
+  busCache: Map<string, Bus>,
+) {
+  const schedule: ScheduleWithRelations = doc.data();
+
+  if (!tripCache.has(schedule.tripId)) {
+    const trip = await tripService.getById(schedule.tripId);
+    if (trip) {
+      tripCache.set(schedule.tripId, trip);
+      schedule.trip = trip;
+    }
+  } else {
+    schedule.trip = tripCache.get(schedule.tripId);
+  }
+
+  if (schedule.busId) {
+    if (!busCache.has(schedule.busId)) {
+      const bus = await busService.getById(schedule.busId);
+      if (bus) {
+        busCache.set(schedule.busId, bus);
+        schedule.bus = bus;
+      }
+    } else {
+      schedule.bus = busCache.get(schedule.busId);
+    }
+  }
+  return schedule;
+}
