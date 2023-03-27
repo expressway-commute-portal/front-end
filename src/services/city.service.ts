@@ -9,6 +9,7 @@ import {
   Timestamp,
   updateDoc,
   where,
+  orderBy,
 } from 'firebase/firestore';
 import {db} from '../config/firebase';
 import {City, cityConverter, FirebaseCity} from '../models/City';
@@ -30,7 +31,7 @@ export const getAllByName = async (name: string) => {
 };
 
 export const getAll = async () => {
-  const snap = await getDocs(query(cityCollection));
+  const snap = await getDocs(query(cityCollection, orderBy('name')));
   return snap.docs.map(doc => ({
     ...doc.data(),
   })) as City[];
