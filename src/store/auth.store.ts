@@ -7,7 +7,7 @@ interface State {
 
   googleSignInLoading: boolean;
 
-  googleSignIn: () => void;
+  googleSignIn: () => Promise<FirebaseUser>;
   logout: () => void;
 }
 
@@ -21,6 +21,7 @@ export const useAuthStore = create<State>(set => ({
     try {
       const user = await authService.googleSignIn();
       set({firebaseUserDetails: user});
+      return user;
     } finally {
       set({googleSignInLoading: false});
     }

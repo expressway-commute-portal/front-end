@@ -1,8 +1,11 @@
 import React from 'react';
+import {getAnalytics, logEvent} from 'firebase/analytics';
 import {Button, Card, Col, message, Row} from 'antd';
 import {useAuthStore} from '../store/auth.store';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {GoogleOutlined} from '@ant-design/icons';
+
+const analytics = getAnalytics();
 
 const SocialLoginRoute = () => {
   const location = useLocation();
@@ -15,7 +18,8 @@ const SocialLoginRoute = () => {
 
   const onGoogleSignInClick = async () => {
     try {
-      await googleSignIn();
+      const user = await googleSignIn();
+      logEvent(analytics, 'sign_up', {method: 'google', user_id: user.uid});
       const from = location.state?.from?.pathname || '/';
       navigate(from, {replace: true});
     } catch (e) {
@@ -27,13 +31,13 @@ const SocialLoginRoute = () => {
     <Row justify={'center'}>
       <Col xs={24} sm={20} md={16} lg={12} xl={6} xxl={4} style={{marginTop: 20}}>
         {contextHolder}
-        <Card cover={<img src={'/pwa-512x512.png'}/>}>
+        <Card cover={<img src={'/pwa-512x512.png'} />}>
           <Button
             type={'default'}
             size={'large'}
             loading={googleSignInLoading}
             block
-            htmlType='submit'
+            htmlType="submit"
             icon={<GoogleOutlined />}
             onClick={onGoogleSignInClick}>
             Continue with Google

@@ -4,6 +4,7 @@ import {createBrowserRouter, Navigate, RouterProvider, useLocation} from 'react-
 import React, {useEffect, useState} from 'react';
 import BusRoute from './bus.route';
 import {onAuthStateChanged} from 'firebase/auth';
+import {getAnalytics, logEvent} from 'firebase/analytics';
 import CityRoute from './city.route';
 import TripRoute from './trip.route';
 import ScheduleRoute from './schedule.route';
@@ -18,6 +19,8 @@ import {enableIndexedDbPersistence} from 'firebase/firestore';
 import UserLayout from '../components/UserLayout/UserLayout';
 
 const adminRoutes = ['/schedule', '/bus', '/city', '/trip'];
+
+const analytics = getAnalytics();
 
 const router = createBrowserRouter([
   {
@@ -88,9 +91,11 @@ const Routes = () => {
 
 function AuthenticationRoute({children}: {children: JSX.Element}) {
   const firebaseUserDetails = useAuthStore(state => state.firebaseUserDetails);
+  console.log('-> firebaseUserDetails', firebaseUserDetails);
 
   const getLoggedInUser = useUserStore(state => state.getLoggedInUser);
   const loggedInUser = useUserStore(state => state.loggedInUser);
+  console.log('-> loggedInUser', loggedInUser);
 
   const [loading, setLoading] = useState(true);
 
@@ -102,6 +107,7 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
 
       if (user) {
         useAuthStore.setState({firebaseUserDetails: user});
+        logEvent(analytics, 'login', {uid: user.uid});
       } else {
         useAuthStore.setState({firebaseUserDetails: undefined});
         useUserStore.setState({loggedInUser: undefined});
