@@ -193,7 +193,9 @@ function ScheduleSearchRoute() {
                         {DateTime.fromJSDate(item.departureTime).toFormat('hh:mm a')}
                       </Descriptions.Item>
                       <Descriptions.Item label="Arrival Time">
-                        {DateTime.fromJSDate(item.arrivalTime).toFormat('hh:mm a')}
+                        {item.arrivalTime
+                          ? DateTime.fromJSDate(item.arrivalTime).toFormat('hh:mm a')
+                          : ''}
                       </Descriptions.Item>
                       <Descriptions.Item label="Ticket Price">
                         <b>Rs.{trip.price}</b>

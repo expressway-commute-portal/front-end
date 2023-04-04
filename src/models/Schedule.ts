@@ -20,12 +20,12 @@ interface BaseSchedule {
 export interface Schedule extends BaseSchedule {
   id: string;
   departureTime: Date;
-  arrivalTime: Date;
+  arrivalTime: Date | null;
 }
 
 export interface FirebaseSchedule extends BaseSchedule {
   departureTime: Timestamp;
-  arrivalTime: Timestamp;
+  arrivalTime: Timestamp | null;
 }
 
 export type ScheduleWithRelations = Schedule & {trip?: Trip; bus?: Bus};
@@ -42,7 +42,7 @@ export const scheduleConverter: FirestoreDataConverter<Schedule> = {
       ...documentData,
       id: snapshot.id,
       departureTime: documentData.departureTime.toDate(),
-      arrivalTime: documentData.arrivalTime.toDate(),
+      arrivalTime: documentData.arrivalTime ? documentData.arrivalTime.toDate() : null,
     };
   },
 };

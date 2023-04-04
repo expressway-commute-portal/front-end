@@ -44,8 +44,6 @@ const ScheduleRoute = () => {
   const createSchedule = useScheduleStore(state => state.createSchedule);
   const updateSchedule = useScheduleStore(state => state.updateSchedule);
 
-  const filter = useScheduleStore(state => state.filter);
-
   const trips = useTripStore(state => state.trips);
   const getTrips = useTripStore(state => state.getTrips);
 
@@ -76,7 +74,7 @@ const ScheduleRoute = () => {
         tripId: selectedSchedule.tripId,
         busId: selectedSchedule.busId,
         departureTime: dayjs(selectedSchedule.departureTime),
-        arrivalTime: dayjs(selectedSchedule.arrivalTime),
+        arrivalTime: selectedSchedule.arrivalTime ? dayjs(selectedSchedule.arrivalTime) : null,
       });
     }
   }, [selectedSchedule]);
@@ -110,7 +108,7 @@ const ScheduleRoute = () => {
     const obj = {
       ...values,
       departureTime: values.departureTime.toDate(),
-      arrivalTime: values.arrivalTime.toDate(),
+      arrivalTime: values.arrivalTime ? values.arrivalTime.toDate() : null,
     };
 
     try {
@@ -227,7 +225,9 @@ const ScheduleRoute = () => {
             <Table.Column<ScheduleWithRelations>
               title={'Arrival Time'}
               align={'center'}
-              render={(_, record) => getFormattedTimeFromDate(record.arrivalTime)}
+              render={(_, record) =>
+                record.arrivalTime ? getFormattedTimeFromDate(record.arrivalTime) : ''
+              }
             />
             <Table.Column<ScheduleWithRelations>
               title={'Enabled'}
@@ -316,10 +316,7 @@ const ScheduleRoute = () => {
                 <TimePicker format={'hh:mm a'} use12Hours />
               </Form.Item>
 
-              <Form.Item
-                label={'Arrival Time'}
-                name={'arrivalTime'}
-                rules={[{required: true, message: 'Arrival Time is required'}]}>
+              <Form.Item label={'Arrival Time'} name={'arrivalTime'}>
                 <TimePicker format={'hh:mm a'} use12Hours />
               </Form.Item>
             </Form>
