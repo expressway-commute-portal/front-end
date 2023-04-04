@@ -18,7 +18,7 @@ import {FirestoreCollections} from '../models';
 export async function getAll() {
   const snap = await getDocs(query(collection(db, FirestoreCollections.Trip)));
   const trips = snap.docs.map(doc => ({...doc.data(), id: doc.id})) as Trip[];
-  trips.sort((a, b) => a.id.localeCompare(b.id));
+  trips.sort((a, b) => a.departureCity.name.localeCompare(b.departureCity.name));
   return trips;
 }
 

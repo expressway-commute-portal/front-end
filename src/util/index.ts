@@ -21,3 +21,8 @@ export const timeOnlyCompare = (date1: Dayjs, date2: Dayjs) => {
   }
   return -1;
 };
+
+export const getFirstLetters = (str: string) => {
+  const words = str.split(' ');
+  return words.map(word => word[0]).join('');
+};

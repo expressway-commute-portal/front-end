@@ -3,20 +3,29 @@ import {
   Button,
   Col,
   Form,
+  Input,
   InputNumber,
   message,
   Modal,
   Popconfirm,
   Row,
   Select,
+  Space,
   Table,
   Tooltip,
 } from 'antd';
-import {DeleteOutlined, EditOutlined, PlusCircleOutlined} from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  MinusCircleOutlined,
+  PlusCircleOutlined,
+  PlusOutlined,
+} from '@ant-design/icons';
 import ButtonGroup from 'antd/es/button/button-group';
 import {useTripStore} from '../store/trip.store';
-import {Trip} from '../models/Trip';
+import {Prices, Trip} from '../models/Trip';
 import {useCityStore} from '../store/city.store';
+import {getFirstLetters} from '../util';
 
 const TripRoute = () => {
   const [messageApi, contextHolder] = message.useMessage();
@@ -47,7 +56,9 @@ const TripRoute = () => {
       form.setFieldsValue({
         departureCity: selectedTrip.departureCity.id,
         arrivalCity: selectedTrip.arrivalCity.id,
+        routeNumber: selectedTrip.routeNumber,
         price: selectedTrip.price,
+        prices: selectedTrip.prices,
       });
     }
   }, [selectedTrip]);
@@ -78,19 +89,26 @@ const TripRoute = () => {
     }
   };
 
-  const transform = (formValues: {departureCity: string; arrivalCity: string; price: string}) => {
+  const transform = (formValues: {
+    departureCity: string;
+    arrivalCity: string;
+    routeNumber: string;
+    price: string;
+    prices: Prices[];
+  }) => {
     const departureCity = cities.find(c => c.id === formValues.departureCity);
     const arrivalCity = cities.find(c => c.id === formValues.arrivalCity);
     if (!departureCity || !arrivalCity) {
       return;
     }
 
-    const object = {
+    return {
       departureCity: {id: departureCity.id, name: departureCity.name},
       arrivalCity: {id: arrivalCity.id, name: arrivalCity.name},
+      routeNumber: formValues.routeNumber,
       price: formValues.price,
+      prices: formValues.prices,
     };
-    return object;
   };
 
   const onFinish = async (values: any) => {
@@ -155,10 +173,19 @@ const TripRoute = () => {
               align={'center'}
               dataIndex={['arrivalCity', 'name']}
             />
+            <Table.Column<Trip> title={'Route Number'} align={'center'} dataIndex={'routeNumber'} />
             <Table.Column<Trip>
               title={'Ticket Price'}
               align={'right'}
-              render={(_, record) => record.price?.toLocaleString()}
+              render={(_, record) => {
+                if (record.prices?.length) {
+                  return record.prices
+                    .map(p => `${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
+                    .join(' ');
+                } else {
+                  return record.price.toLocaleString();
+                }
+              }}
             />
             <Table.Column<Trip>
               title={'Action'}
@@ -190,11 +217,12 @@ const TripRoute = () => {
             open={open}
             destroyOnClose
             maskClosable
+            width={700}
             onCancel={closeModal}
             onOk={form.submit}
             confirmLoading={createTripLoading || updateTripLoading}>
             <h1>Form</h1>
-            <Form form={form} labelCol={{span: 6}} onFinish={onFinish} preserve={false}>
+            <Form form={form} onFinish={onFinish} preserve={false}>
               <Form.Item
                 name={'departureCity'}
                 label={'Departure City'}
@@ -218,11 +246,66 @@ const TripRoute = () => {
               </Form.Item>
 
               <Form.Item
-                label={'Ticket Price'}
-                name={'price'}
-                rules={[{required: true, message: 'Ticket Price is required'}]}>
-                <InputNumber placeholder={'Price'} min={0} />
+                label={'Route Number'}
+                name={'routeNumber'}
+                rules={[{required: true, message: 'Route Number is required'}]}>
+                <Input placeholder={'Route Number'} style={{width: '30%'}} />
               </Form.Item>
+
+              <Form.List
+                name="prices"
+                rules={[
+                  {
+                    message: 'Prices are required',
+                    validator: (_, value) => {
+                      if (!value || value.length === 0) {
+                        return Promise.reject(new Error('Prices are required'));
+                      }
+                      return Promise.resolve();
+                    },
+                  },
+                ]}>
+                {(fields, {add, remove}, {errors}) => (
+                  <>
+                    {fields.map(field => (
+                      <Space key={field.key} align={'baseline'}>
+                        <Form.Item
+                          noStyle
+                          shouldUpdate={(prevValues, curValues) =>
+                            JSON.stringify(prevValues.prices) !== JSON.stringify(curValues.prices)
+                          }>
+                          {() => (
+                            <Form.Item
+                              {...field}
+                              label="Service Type"
+                              name={[field.name, 'serviceType']}
+                              rules={[{required: true, message: 'Missing Service Type'}]}>
+                              <Select style={{width: 200}}>
+                                <Select.Option value="Luxury">Luxury</Select.Option>
+                                <Select.Option value="Super Luxury">Super Luxury</Select.Option>
+                              </Select>
+                            </Form.Item>
+                          )}
+                        </Form.Item>
+                        <Form.Item
+                          {...field}
+                          label="Price"
+                          name={[field.name, 'price']}
+                          rules={[{required: true, message: 'Missing price'}]}>
+                          <InputNumber placeholder="price" style={{width: '100%'}} />
+                        </Form.Item>
+                        <MinusCircleOutlined onClick={() => remove(field.name)} />
+                      </Space>
+                    ))}
+                    <Form.Item>
+                      <Button type="dashed" onClick={() => add()} block icon={<PlusOutlined />}>
+                        Add Ticket Prices
+                      </Button>
+                      <Form.ErrorList errors={errors} />
+                    </Form.Item>
+                  </>
+                )}
+              </Form.List>
             </Form>
           </Modal>
         </Col>

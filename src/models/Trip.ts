@@ -1,5 +1,10 @@
 import {Timestamp} from 'firebase/firestore';
 
+export type Prices = {
+  price: string;
+  serviceType: string;
+};
+
 export interface Trip {
   id: string;
 
@@ -13,7 +18,10 @@ export interface Trip {
     name: string;
   };
 
+  routeNumber: string;
+
   price: string;
+  prices: Prices[];
 
   transitCityIds: string[];
 
