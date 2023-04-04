@@ -1,6 +1,7 @@
 import {
   addDoc,
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -96,6 +97,10 @@ export const update = async (id: string, schedule: Partial<Schedule>) => {
 
   await updateDoc(doc(db, FirestoreCollections.Schedule, id), document);
 };
+
+export async function deleteById(id: string) {
+  await deleteDoc(doc(db, FirestoreCollections.Schedule, id));
+}
 
 async function fetchRelations(
   doc: QueryDocumentSnapshot<Schedule>,

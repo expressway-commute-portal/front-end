@@ -3,6 +3,7 @@ import {devtools} from 'zustand/middleware';
 import * as scheduleService from '../services/schedule.service';
 import {CreateFirebaseSchedule, Schedule, ScheduleWithRelations} from '../models/Schedule';
 import {useTripStore} from './trip.store';
+import {deleteById} from '../services/schedule.service';
 
 interface State {
   schedules: Schedule[];
@@ -12,10 +13,12 @@ interface State {
   getSchedulesLoading: boolean;
   createScheduleLoading: boolean;
   updateScheduleLoading: boolean;
+  deleteScheduleLoading: boolean;
 
   getSchedules: () => Promise<void>;
   createSchedule: (schedule: CreateFirebaseSchedule) => Promise<void>;
   updateSchedule: (id: string, schedule: Partial<Schedule>) => Promise<void>;
+  deleteSchedule: (id: string) => Promise<void>;
 
   getSchedulesWithRelations: () => Promise<void>;
 
@@ -31,6 +34,7 @@ export const useScheduleStore = create<State>()(
     getSchedulesLoading: false,
     createScheduleLoading: false,
     updateScheduleLoading: false,
+    deleteScheduleLoading: false,
 
     getSchedules: async () => {
       set({getSchedulesLoading: true});
@@ -70,6 +74,17 @@ export const useScheduleStore = create<State>()(
         }
       } finally {
         set({updateScheduleLoading: false});
+      }
+    },
+    deleteSchedule: async (id: string) => {
+      set({deleteScheduleLoading: true});
+      try {
+        await scheduleService.deleteById(id);
+        set(state => ({
+          schedulesWithRelations: state.schedulesWithRelations.filter(s => s.id !== id),
+        }));
+      } finally {
+        set({deleteScheduleLoading: false});
       }
     },
     getSchedulesWithRelations: async () => {

@@ -43,6 +43,7 @@ const ScheduleRoute = () => {
   const getSchedulesWithRelations = useScheduleStore(state => state.getSchedulesWithRelations);
   const createSchedule = useScheduleStore(state => state.createSchedule);
   const updateSchedule = useScheduleStore(state => state.updateSchedule);
+  const deleteSchedule = useScheduleStore(state => state.deleteSchedule);
 
   const trips = useTripStore(state => state.trips);
   const getTrips = useTripStore(state => state.getTrips);
@@ -102,7 +103,14 @@ const ScheduleRoute = () => {
     getBuses().then().catch(handleErrors);
   };
 
-  // const onDelete = async (id: string) => {};
+  const onDelete = async (id: string) => {
+    try {
+      await deleteSchedule(id);
+      messageApi.success('Schedule deleted successfully');
+    } catch (e) {
+      messageApi.error(e.message || e);
+    }
+  };
 
   const onFinish = async (values: any) => {
     const obj = {
@@ -260,12 +268,10 @@ const ScheduleRoute = () => {
                       }}
                     />
                     <Popconfirm
-                      disabled
                       title={'Are you sure?'}
                       placement={'leftTop'}
-                      // onConfirm={() => onDelete(record.id)}
-                    >
-                      <Button disabled danger icon={<DeleteOutlined />} />
+                      onConfirm={() => onDelete(record.id)}>
+                      <Button danger icon={<DeleteOutlined />} />
                     </Popconfirm>
                   </ButtonGroup>
                 </Tooltip>
