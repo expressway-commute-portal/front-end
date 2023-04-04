@@ -23,9 +23,9 @@ const AdminLayout = ({children}: {children: JSX.Element}) => {
 
   return (
     <Layout>
-      <Header>
+      {/*<Header>*/}
         <div className="logo" />
-        <Menu theme="dark" mode="horizontal" selectedKeys={[currentPage]} onClick={onClick}>
+        <Menu theme="light" mode="horizontal" selectedKeys={[currentPage]} onClick={onClick}>
           <Menu.Item key="schedule">
             <Link to="/schedule">Schedule</Link>
           </Menu.Item>
@@ -38,11 +38,11 @@ const AdminLayout = ({children}: {children: JSX.Element}) => {
           <Menu.Item key="city">
             <Link to="/city">City</Link>
           </Menu.Item>
-          <Menu.Item key="logout" style={{marginLeft: 'auto'}}>
-            <Button onClick={() => onLogoutClick()}>Logout</Button>
+          <Menu.Item key="logout" style={{marginLeft: 'auto'}} onClick={() => onLogoutClick()}>
+            Logout
           </Menu.Item>
         </Menu>
-      </Header>
+      {/*</Header>*/}
       <Content style={{padding: '0 50px'}}>
         <div className="site-layout-content">{children}</div>
       </Content>
