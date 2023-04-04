@@ -57,7 +57,6 @@ const TripRoute = () => {
         departureCity: selectedTrip.departureCity.id,
         arrivalCity: selectedTrip.arrivalCity.id,
         routeNumber: selectedTrip.routeNumber,
-        price: selectedTrip.price,
         prices: selectedTrip.prices,
       });
     }
@@ -93,7 +92,6 @@ const TripRoute = () => {
     departureCity: string;
     arrivalCity: string;
     routeNumber: string;
-    price: string;
     prices: Prices[];
   }) => {
     const departureCity = cities.find(c => c.id === formValues.departureCity);
@@ -106,7 +104,6 @@ const TripRoute = () => {
       departureCity: {id: departureCity.id, name: departureCity.name},
       arrivalCity: {id: arrivalCity.id, name: arrivalCity.name},
       routeNumber: formValues.routeNumber,
-      price: formValues.price,
       prices: formValues.prices,
     };
   };
@@ -202,11 +199,10 @@ const TripRoute = () => {
                       }}
                     />
                     <Popconfirm
-                      disabled
                       title={'Are you sure?'}
                       placement={'leftTop'}
                       onConfirm={() => onDelete(record.id)}>
-                      <Button disabled danger icon={<DeleteOutlined />} />
+                      <Button danger icon={<DeleteOutlined />} />
                     </Popconfirm>
                   </ButtonGroup>
                 </Tooltip>
