@@ -30,7 +30,7 @@ const UserLayout = ({children}: {children: JSX.Element}) => {
         <br />
         <br />
         <Typography.Text type={'secondary'} italic>
-          Copyright © 2023 by Expressway Commute Portal. All Rights Received{' '}
+          Copyright © 2023 by Expressway Commute Portal. All Rights Reserved{' '}
         </Typography.Text>
       </Footer>
     </Layout>

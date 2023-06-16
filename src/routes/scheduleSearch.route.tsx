@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Button, Card, Col, Descriptions, Form, List, Modal, Row, Select, Space} from 'antd';
+import {Button, Card, Col, Descriptions, Empty, Form, List, Modal, Row, Select, Space} from 'antd';
 import _debounce from 'lodash/debounce';
 import {useCityStore} from '../store/city.store';
 import {useTripStore} from '../store/trip.store';
@@ -14,6 +14,7 @@ import {
 } from '@ant-design/icons';
 import '../App.css';
 import {Schedule} from '../models/Schedule';
+import {getFirstLetters} from '../util';
 
 function ScheduleSearchRoute() {
   const [departureCity, setDepartureCity] = useState('');
@@ -166,6 +167,7 @@ function ScheduleSearchRoute() {
       </Row>
       <br />
       <br />
+      {!trip && arrivalCity && departureCity && <Empty />}
       {trip && (
         <Row justify={'center'}>
           <Col>
@@ -183,7 +185,8 @@ function ScheduleSearchRoute() {
                   <Card
                     title={
                       <>
-                        {departureCity} &nbsp; <ArrowRightOutlined /> &nbsp; {arrivalCity}
+                        {trip.departureCity.name} &nbsp; <ArrowRightOutlined /> &nbsp;{' '}
+                        {trip.arrivalCity.name}
                       </>
                     }
                     headStyle={{textAlign: 'center'}}
@@ -198,7 +201,20 @@ function ScheduleSearchRoute() {
                           : ''}
                       </Descriptions.Item>
                       <Descriptions.Item label="Ticket Price">
-                        <b>Rs.{trip.price}</b>
+                        <b>
+                          {trip.prices.length > 1 &&
+                            trip.prices
+                              .map(
+                                p =>
+                                  `Rs. ${p.price.toLocaleString()}(${getFirstLetters(
+                                    p.serviceType,
+                                  )})`,
+                              )
+                              .join(' ')}
+                          {trip.prices.length == 1 &&
+                            `Rs. ${trip.prices[0].price.toLocaleString()}`}
+                          {trip.prices.length == 0 && `Rs. ${trip.price.toLocaleString()}`}
+                        </b>
                       </Descriptions.Item>
                     </Descriptions>
                     <br />

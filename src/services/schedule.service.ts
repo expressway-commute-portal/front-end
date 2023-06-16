@@ -15,6 +15,7 @@ import {db} from '../config/firebase';
 import {FirestoreCollections} from '../models';
 import {
   CreateFirebaseSchedule,
+  FirebaseSchedule,
   Schedule,
   scheduleConverter,
   ScheduleWithRelations,
@@ -85,7 +86,7 @@ export const create = async (schedule: CreateFirebaseSchedule) => {
     updatedAt: Timestamp.now(),
   };
 
-  const reference = await addDoc(scheduleCollection, document);
+  const reference = await addDoc(collection(db, FirestoreCollections.Schedule), document);
   return reference.id;
 };
 
