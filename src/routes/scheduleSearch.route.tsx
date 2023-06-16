@@ -1,27 +1,30 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import {Button, Card, Col, Descriptions, Empty, Form, List, Modal, Row, Select, Space} from 'antd';
-import _debounce from 'lodash/debounce';
-import {useCityStore} from '../store/city.store';
-import {useTripStore} from '../store/trip.store';
-import {useScheduleStore} from '../store/schedule.store';
-import {DateTime} from 'luxon';
-import {useBusStore} from '../store/bus.store';
+import React from 'react';
+import {PhoneTwoTone, SearchOutlined} from '@ant-design/icons';
 import {
-  ArrowRightOutlined,
-  PhoneTwoTone,
-  SearchOutlined,
-  UnorderedListOutlined,
-} from '@ant-design/icons';
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Form,
+  List,
+  Modal,
+  Row,
+  Select,
+  Space,
+  message,
+} from 'antd';
+import _debounce from 'lodash/debounce';
+import {useEffect, useMemo, useState} from 'react';
 import '../App.css';
-import {Schedule} from '../models/Schedule';
-import {getFirstLetters} from '../util';
-import {Trip} from '../models/Trip';
 import ScheduleCard from '../components/ScheduleCard';
+import {Schedule} from '../models/Schedule';
+import {Trip} from '../models/Trip';
+import {useBusStore} from '../store/bus.store';
+import {useCityStore} from '../store/city.store';
+import {useScheduleStore} from '../store/schedule.store';
+import {useTripStore} from '../store/trip.store';
 
 function ScheduleSearchRoute() {
-  const [departureCity, setDepartureCity] = useState('');
-  const [arrivalCity, setArrivalCity] = useState('');
-
   const [open, setOpen] = useState(false);
 
   const departureCities = useCityStore(state => state.departureCities);
@@ -50,6 +53,8 @@ function ScheduleSearchRoute() {
   const selectedBus = useBusStore(state => state.selectedBus);
   const getBusById = useBusStore(state => state.getBusById);
   const getBusByIdLoading = useBusStore(state => state.getBusByIdLoading);
+
+  const [messageApi, contextHolder] = message.useMessage();
 
   const onDepartureSearch = async (value: string) => {
     if (value) {
@@ -87,7 +92,11 @@ function ScheduleSearchRoute() {
     } = values;
 
     await getTripByCityIds(departureCityId, arrivalCityId);
-    await getSchedules();
+    const count = await getSchedules();
+
+    if (count === 0) {
+      messageApi.warning('No schedules');
+    }
   };
 
   const onBusDetailsButtonClick = async (schedule: Schedule) => {
@@ -100,22 +109,6 @@ function ScheduleSearchRoute() {
 
   const onCloseModal = () => {
     setOpen(false);
-  };
-
-  const displayPrice = (trip: Trip) => {
-    if (trip.prices.length > 1) {
-      const priceText = trip.prices
-        .map(p => `Rs. ${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
-        .join('\n');
-
-      return <b>{priceText}</b>;
-    }
-
-    if (trip.prices.length === 1) {
-      return <b>Rs. {trip.prices[0].price.toLocaleString()}</b>;
-    }
-
-    return <b>Rs.{trip.price.toLocaleString()}</b>;
   };
 
   const renderSchedules = (schedules: Schedule[], trip: Trip) => {
@@ -153,7 +146,8 @@ function ScheduleSearchRoute() {
 
   return (
     <>
-      <Row justify={'center'} style={{border: ''}}>
+      {contextHolder}
+      <Row justify={'center'}>
         <Col style={{border: ''}}>
           <Card title={'Expressway Bus Schedule'} headStyle={{textAlign: 'center'}}>
             <Form
@@ -218,12 +212,13 @@ function ScheduleSearchRoute() {
       </Row>
       <br />
       <br />
-      {!trip && arrivalCity && departureCity && <Empty />}
       {trip && (
         <Row justify={'center'}>
           <Col>{renderSchedules(schedules, trip)}</Col>
         </Row>
       )}
+
+      {/* Bus Details Modal */}
       {selectedBus && (
         <Modal open={open} onCancel={onCloseModal} destroyOnClose maskClosable footer={null}>
           <Descriptions

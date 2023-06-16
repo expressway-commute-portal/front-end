@@ -15,7 +15,7 @@ interface State {
   updateScheduleLoading: boolean;
   deleteScheduleLoading: boolean;
 
-  getSchedules: () => Promise<void>;
+  getSchedules: () => Promise<number>;
   createSchedule: (schedule: CreateFirebaseSchedule) => Promise<void>;
   updateSchedule: (id: string, schedule: Partial<Schedule>) => Promise<void>;
   deleteSchedule: (id: string) => Promise<void>;
@@ -43,6 +43,9 @@ export const useScheduleStore = create<State>()(
         if (trip) {
           const schedules = await scheduleService.getSchedulesByTripId(trip.id);
           set({schedules});
+          return schedules.length;
+        } else {
+          return 0;
         }
       } finally {
         set({getSchedulesLoading: false});
