@@ -11,7 +11,7 @@ import ScheduleRoute from './schedule.route';
 import {useAuthStore} from '../store/auth.store';
 import AdminLayout from '../components/AdminLayout';
 import {auth, db} from '../config/firebase';
-import {message, Spin} from 'antd';
+import {message, Result, Spin} from 'antd';
 import SocialLoginRoute from './socialLogin.route';
 import ScheduleSearchRoute from './scheduleSearch.route';
 import {useUserStore} from '../store/user.store';
@@ -86,6 +86,7 @@ const router = createBrowserRouter([
 ]);
 
 const Routes = () => {
+  return <Result title="Site is under maintenance. Please bear with us for a while." />;
   return <RouterProvider router={router} />;
 };
 
