@@ -15,6 +15,8 @@ import {
 import '../App.css';
 import {Schedule} from '../models/Schedule';
 import {getFirstLetters} from '../util';
+import {Trip} from '../models/Trip';
+import ScheduleCard from '../components/ScheduleCard';
 
 function ScheduleSearchRoute() {
   const [departureCity, setDepartureCity] = useState('');
@@ -100,6 +102,55 @@ function ScheduleSearchRoute() {
     setOpen(false);
   };
 
+  const displayPrice = (trip: Trip) => {
+    if (trip.prices.length > 1) {
+      const priceText = trip.prices
+        .map(p => `Rs. ${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
+        .join('\n');
+
+      return <b>{priceText}</b>;
+    }
+
+    if (trip.prices.length === 1) {
+      return <b>Rs. {trip.prices[0].price.toLocaleString()}</b>;
+    }
+
+    return <b>Rs.{trip.price.toLocaleString()}</b>;
+  };
+
+  const renderSchedules = (schedules: Schedule[], trip: Trip) => {
+    let columns = 3;
+    schedules.length === 1 && (columns = 1);
+    schedules.length === 2 && (columns = 2);
+    const gridConfig = {
+      gutter: 16,
+      xs: 1,
+      sm: 2,
+      md: 2,
+      lg: columns,
+      xl: columns,
+      xxl: columns,
+    };
+
+    return (
+      <List
+        grid={gridConfig}
+        dataSource={schedules}
+        renderItem={item => (
+          <List.Item>
+            <ScheduleCard
+              schedule={item}
+              trip={trip}
+              onBusDetailsButtonClick={onBusDetailsButtonClick}
+              getBusByIdLoading={getBusByIdLoading}
+              selectedSchedule={selectedSchedule}
+            />
+          </List.Item>
+        )}
+      />
+    );
+  };
+
   return (
     <>
       <Row justify={'center'} style={{border: ''}}>
@@ -170,68 +221,7 @@ function ScheduleSearchRoute() {
       {!trip && arrivalCity && departureCity && <Empty />}
       {trip && (
         <Row justify={'center'}>
-          <Col>
-            <List
-              grid={{
-                xs: 1,
-                sm: 2,
-                md: 3,
-                lg: 3,
-                xl: 3,
-              }}
-              dataSource={schedules}
-              renderItem={item => (
-                <List.Item>
-                  <Card
-                    title={
-                      <>
-                        {trip.departureCity.name} &nbsp; <ArrowRightOutlined /> &nbsp;{' '}
-                        {trip.arrivalCity.name}
-                      </>
-                    }
-                    headStyle={{textAlign: 'center'}}
-                    bodyStyle={{textAlign: 'center'}}>
-                    <Descriptions bordered layout={'horizontal'} column={1} size={'small'}>
-                      <Descriptions.Item label="Departure Time">
-                        {DateTime.fromJSDate(item.departureTime).toFormat('hh:mm a')}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Arrival Time">
-                        {item.arrivalTime
-                          ? DateTime.fromJSDate(item.arrivalTime).toFormat('hh:mm a')
-                          : ''}
-                      </Descriptions.Item>
-                      <Descriptions.Item label="Ticket Price">
-                        <b>
-                          {trip.prices.length > 1 &&
-                            trip.prices
-                              .map(
-                                p =>
-                                  `Rs. ${p.price.toLocaleString()}(${getFirstLetters(
-                                    p.serviceType,
-                                  )})`,
-                              )
-                              .join(' ')}
-                          {trip.prices.length == 1 &&
-                            `Rs. ${trip.prices[0].price.toLocaleString()}`}
-                          {trip.prices.length == 0 && `Rs. ${trip.price.toLocaleString()}`}
-                        </b>
-                      </Descriptions.Item>
-                    </Descriptions>
-                    <br />
-                    {item.busId && (
-                      <Button
-                        type={'default'}
-                        onClick={() => onBusDetailsButtonClick(item)}
-                        icon={<UnorderedListOutlined />}
-                        loading={getBusByIdLoading && selectedSchedule?.id === item.id}>
-                        Bus Details
-                      </Button>
-                    )}
-                  </Card>
-                </List.Item>
-              )}
-            />
-          </Col>
+          <Col>{renderSchedules(schedules, trip)}</Col>
         </Row>
       )}
       {selectedBus && (
