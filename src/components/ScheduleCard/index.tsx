@@ -1,74 +1,78 @@
 import React from 'react';
-import {Button, Card, Descriptions} from 'antd';
-import {ArrowRightOutlined, UnorderedListOutlined} from '@ant-design/icons';
-import {Trip} from '../../models/Trip';
-import {Schedule} from '../../models/Schedule';
+import {ArrowRightOutlined, UnorderedListOutlined, BranchesOutlined} from '@ant-design/icons';
+import {Button, Card, Descriptions, Popover} from 'antd';
 import {DateTime} from 'luxon';
-import {getFirstLetters} from '../../util';
 
 type Props = {
-  trip: Trip;
-  schedule: Schedule;
-  onBusDetailsButtonClick: (schedule: Schedule) => void;
-  getBusByIdLoading: boolean;
-  selectedSchedule: Schedule | undefined;
+  departureCity: string;
+  arrivalCity: string;
+  departureTime?: Date;
+  arrivalTime?: Date;
+  price: string;
+  busId?: string;
+  buttonLoading: boolean;
+  popoverContent?: React.ReactNode;
+
+  onBusDetailsButtonClick: () => void;
 };
 
 const ScheduleCard = ({
-  trip,
-  schedule,
+  departureCity,
+  arrivalCity,
+  departureTime,
+  arrivalTime,
+  price,
+  busId,
+  buttonLoading,
   onBusDetailsButtonClick,
-  getBusByIdLoading,
-  selectedSchedule,
+  popoverContent,
 }: Props) => {
   return (
     <Card
       title={
-        <>
-          {trip.departureCity.name} &nbsp; <ArrowRightOutlined /> &nbsp; {trip.arrivalCity.name}
-        </>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+          }}>
+          <div>
+            {departureCity} &nbsp; <ArrowRightOutlined /> &nbsp; {arrivalCity}{' '}
+          </div>
+          &nbsp; &nbsp;
+          {popoverContent && (
+            <Popover content={popoverContent} placement="bottomRight">
+              <Button type="default" shape="round" icon={<BranchesOutlined />} />
+            </Popover>
+          )}
+        </div>
       }
-      headStyle={{textAlign: 'center'}}
+      headStyle={{textAlign: 'center', padding: '0 5'}}
       bodyStyle={{textAlign: 'center'}}>
       <Descriptions bordered layout={'horizontal'} column={1} size={'small'}>
         <Descriptions.Item label="Departure Time">
-          {DateTime.fromJSDate(schedule.departureTime).toFormat('hh:mm a')}
+          {departureTime ? DateTime.fromJSDate(departureTime).toFormat('hh:mm a') : ''}
         </Descriptions.Item>
         <Descriptions.Item label="Arrival Time">
-          {schedule.arrivalTime
-            ? DateTime.fromJSDate(schedule.arrivalTime).toFormat('hh:mm a')
-            : ''}
+          {arrivalTime ? DateTime.fromJSDate(arrivalTime).toFormat('hh:mm a') : ''}
         </Descriptions.Item>
-        <Descriptions.Item label="Ticket Price">{displayPrice(trip)}</Descriptions.Item>
+        <Descriptions.Item label="Ticket Price">
+          <b>{price}</b>
+        </Descriptions.Item>
       </Descriptions>
       <br />
-      {schedule.busId && (
+      {busId && (
         <Button
           type={'default'}
-          onClick={() => onBusDetailsButtonClick(schedule)}
+          onClick={onBusDetailsButtonClick}
           icon={<UnorderedListOutlined />}
-          loading={getBusByIdLoading && selectedSchedule?.id === schedule.id}>
+          loading={buttonLoading}>
           Bus Details
         </Button>
       )}
     </Card>
   );
-};
-
-const displayPrice = (trip: Trip) => {
-  if (trip.prices.length > 1) {
-    const priceText = trip.prices
-      .map(p => `Rs. ${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
-      .join('\n');
-
-    return <b>{priceText}</b>;
-  }
-
-  if (trip.prices.length === 1) {
-    return <b>Rs. {trip.prices[0].price.toLocaleString()}</b>;
-  }
-
-  return <b>Rs.{trip.price.toLocaleString()}</b>;
 };
 
 export default ScheduleCard;

@@ -23,6 +23,8 @@ interface State {
   getSchedulesWithRelations: () => Promise<void>;
 
   filter: (busName: string, tripId: string, enabled: boolean) => void;
+
+  clearSchedules: () => void;
 }
 
 export const useScheduleStore = create<State>()(
@@ -109,6 +111,9 @@ export const useScheduleStore = create<State>()(
           s.enabled === enabled,
       );
       set({filteredSchedulesWithRelations: filteredSchedules});
+    },
+    clearSchedules: () => {
+      set({schedules: []});
     },
   })),
 );

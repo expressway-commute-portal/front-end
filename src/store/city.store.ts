@@ -8,6 +8,7 @@ interface State {
   arrivalCities: City[];
 
   getCities: () => Promise<void>;
+  getPredefinedCities: () => Promise<void>;
   createCity: (city: FirebaseCity) => Promise<void>;
   updateCity: (id: string, city: Partial<City>) => Promise<void>;
   deleteCity: (id: string) => Promise<void>;
@@ -41,6 +42,15 @@ export const useCityStore = create<State>(set => ({
     try {
       const cities = await cityService.getAll();
       set({cities});
+    } finally {
+      set({getCitiesLoading: false});
+    }
+  },
+  getPredefinedCities: async () => {
+    set({getCitiesLoading: true});
+    try {
+      const cities = await cityService.getByPredefinedNames();
+      set({departureCities: cities, arrivalCities: cities});
     } finally {
       set({getCitiesLoading: false});
     }

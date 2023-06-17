@@ -37,6 +37,19 @@ export const getAll = async () => {
   })) as City[];
 };
 
+export const getByPredefinedNames = async () => {
+  const cities = import.meta.env.VITE_PREDEFINED_CITY_NAMES;
+  const snap = await getDocs(
+    query(
+      cityCollection,
+      where('name', 'in', ['Makumbura', 'Colombo', 'Embilipitiya', 'Monaragala']),
+    ),
+  );
+  return snap.docs.map(doc => ({
+    ...doc.data(),
+  })) as City[];
+};
+
 export const getById = async (id: string) => {
   const snapshot = await getDoc(
     doc(db, FirestoreCollections.City, id).withConverter(cityConverter),

@@ -1,4 +1,3 @@
-import React from 'react';
 import {PhoneTwoTone, SearchOutlined} from '@ant-design/icons';
 import {
   Button,
@@ -17,15 +16,23 @@ import _debounce from 'lodash/debounce';
 import {useEffect, useMemo, useState} from 'react';
 import '../App.css';
 import ScheduleCard from '../components/ScheduleCard';
+import {City} from '../models/City';
 import {Schedule} from '../models/Schedule';
-import {Trip} from '../models/Trip';
 import {useBusStore} from '../store/bus.store';
 import {useCityStore} from '../store/city.store';
 import {useScheduleStore} from '../store/schedule.store';
 import {useTripStore} from '../store/trip.store';
+import {getFirstLetters} from '../util';
 
 function ScheduleSearchRoute() {
   const [open, setOpen] = useState(false);
+
+  const [selectedDepartureCity, setSelectedDepartureCity] = useState<
+    Pick<City, 'id' | 'name'> | undefined
+  >();
+  const [selectedArrivalCity, setSelectedArrivalCity] = useState<
+    Pick<City, 'id' | 'name'> | undefined
+  >();
 
   const departureCities = useCityStore(state => state.departureCities);
   const arrivalCities = useCityStore(state => state.arrivalCities);
@@ -37,6 +44,7 @@ function ScheduleSearchRoute() {
 
   const getArrivalCitiesByName = useCityStore(state => state.getArrivalCitiesByName);
   const getArrivalCitiesByNameLoading = useCityStore(state => state.getArrivalCitiesByNameLoading);
+  const getPredefinedCities = useCityStore(state => state.getPredefinedCities);
 
   const clearDepartureCities = useCityStore(state => state.clearDepartureCities);
   const clearArrivalCities = useCityStore(state => state.clearArrivalCities);
@@ -48,6 +56,7 @@ function ScheduleSearchRoute() {
   const schedules = useScheduleStore(state => state.schedules);
   const getSchedulesLoading = useScheduleStore(state => state.getSchedulesLoading);
   const getSchedules = useScheduleStore(state => state.getSchedules);
+  const clearSchedules = useScheduleStore(state => state.clearSchedules);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule | undefined>();
 
   const selectedBus = useBusStore(state => state.selectedBus);
@@ -55,6 +64,10 @@ function ScheduleSearchRoute() {
   const getBusByIdLoading = useBusStore(state => state.getBusByIdLoading);
 
   const [messageApi, contextHolder] = message.useMessage();
+
+  useEffect(() => {
+    getPredefinedCities().then().catch();
+  }, []);
 
   const onDepartureSearch = async (value: string) => {
     if (value) {
@@ -103,15 +116,35 @@ function ScheduleSearchRoute() {
     setSelectedSchedule(schedule);
     if (schedule.busId) {
       await getBusById(schedule.busId);
+      setOpen(true);
     }
-    setOpen(true);
   };
 
   const onCloseModal = () => {
     setOpen(false);
   };
 
-  const renderSchedules = (schedules: Schedule[], trip: Trip) => {
+  const clearSearchedSchedules = () => {
+    if (schedules.length) {
+      clearSchedules();
+    }
+  };
+
+  const renderSchedules = () => {
+    if (!trip || !selectedDepartureCity || !selectedArrivalCity) {
+      return null;
+    }
+
+    let price = `${trip.price.toLocaleString()}`;
+    if (trip.prices.length > 1) {
+      price = trip.prices
+        .map(p => `${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
+        .join(' | ');
+    }
+    if (trip.prices.length === 1) {
+      price = `${trip.prices[0].price.toLocaleString()}`;
+    }
+
     let columns = 3;
     schedules.length === 1 && (columns = 1);
     schedules.length === 2 && (columns = 2);
@@ -129,17 +162,42 @@ function ScheduleSearchRoute() {
       <List
         grid={gridConfig}
         dataSource={schedules}
-        renderItem={item => (
-          <List.Item>
-            <ScheduleCard
-              schedule={item}
-              trip={trip}
-              onBusDetailsButtonClick={onBusDetailsButtonClick}
-              getBusByIdLoading={getBusByIdLoading}
-              selectedSchedule={selectedSchedule}
-            />
-          </List.Item>
-        )}
+        renderItem={schedule => {
+          let departureCity = trip.departureCity.name;
+          let departureTime: Date | undefined = schedule.departureTime;
+          if (selectedDepartureCity.id !== trip.departureCity.id) {
+            departureCity = selectedDepartureCity.name;
+            const transitTime = schedule.transitTimes.find(
+              t => t.cityId === selectedDepartureCity.id,
+            )?.time;
+            departureTime = transitTime;
+          }
+
+          let arrivalCity = trip.arrivalCity.name;
+          let arrivalTime: Date | undefined = schedule.arrivalTime;
+          if (selectedArrivalCity.id !== trip.arrivalCity.id) {
+            arrivalCity = selectedArrivalCity.name;
+            const transitTime = schedule.transitTimes.find(
+              t => t.cityId === selectedArrivalCity.id,
+            )?.time;
+            arrivalTime = transitTime;
+          }
+
+          return (
+            <List.Item>
+              <ScheduleCard
+                departureCity={departureCity}
+                arrivalCity={arrivalCity}
+                departureTime={departureTime}
+                arrivalTime={arrivalTime}
+                price={price}
+                busId={schedule.busId}
+                buttonLoading={getBusByIdLoading && selectedSchedule?.id === schedule.id}
+                onBusDetailsButtonClick={() => onBusDetailsButtonClick(schedule)}
+              />
+            </List.Item>
+          );
+        }}
       />
     );
   };
@@ -165,7 +223,11 @@ function ScheduleSearchRoute() {
                   showSearch
                   labelInValue
                   placeholder={'Please enter the city name'}
-                  onSearch={debouncedDepartureSearch}>
+                  onSearch={debouncedDepartureSearch}
+                  onSelect={({key, label}: {key: string; label: string}) => {
+                    setSelectedDepartureCity({id: key, name: label});
+                    clearSearchedSchedules();
+                  }}>
                   {departureCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}
@@ -184,7 +246,11 @@ function ScheduleSearchRoute() {
                   showSearch
                   labelInValue
                   placeholder={'Please enter the city name'}
-                  onSearch={debouncedArrivalSearch}>
+                  onSearch={debouncedArrivalSearch}
+                  onSelect={({key, label}: {key: string; label: string}) => {
+                    setSelectedArrivalCity({id: key, name: label});
+                    clearSearchedSchedules();
+                  }}>
                   {arrivalCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}
@@ -208,13 +274,14 @@ function ScheduleSearchRoute() {
           </Card>
         </Col>
       </Row>
+
       <br />
       <br />
-      {trip && (
-        <Row justify={'center'}>
-          <Col>{renderSchedules(schedules, trip)}</Col>
-        </Row>
-      )}
+
+      {/* Schedule List */}
+      <Row justify={'center'}>
+        <Col>{renderSchedules()}</Col>
+      </Row>
 
       {/* Bus Details Modal */}
       {selectedBus && (

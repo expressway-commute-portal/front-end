@@ -86,8 +86,8 @@ const router = createBrowserRouter([
 ]);
 
 const Routes = () => {
-  return <Result title="Site is under maintenance. Please bear with us for a while." />;
-  // return <RouterProvider router={router} />;
+  // return <Result title="Site is under maintenance. Please bear with us for a while." />;
+  return <RouterProvider router={router} />;
 };
 
 function AuthenticationRoute({children}: {children: JSX.Element}) {

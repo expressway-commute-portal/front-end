@@ -1,11 +1,17 @@
-import React, {useEffect, useState} from 'react';
+import {
+  DeleteOutlined,
+  EditOutlined,
+  MinusCircleOutlined,
+  PlusCircleOutlined,
+  PlusOutlined,
+  SearchOutlined,
+} from '@ant-design/icons';
 import {
   Button,
   Col,
   Form,
   Input,
   InputNumber,
-  message,
   Modal,
   Popconfirm,
   Row,
@@ -13,18 +19,13 @@ import {
   Space,
   Table,
   Tooltip,
+  message,
 } from 'antd';
-import {
-  DeleteOutlined,
-  EditOutlined,
-  MinusCircleOutlined,
-  PlusCircleOutlined,
-  PlusOutlined,
-} from '@ant-design/icons';
 import ButtonGroup from 'antd/es/button/button-group';
-import {useTripStore} from '../store/trip.store';
+import {useEffect, useState} from 'react';
 import {Prices, Trip} from '../models/Trip';
 import {useCityStore} from '../store/city.store';
+import {useTripStore} from '../store/trip.store';
 import {getFirstLetters} from '../util';
 
 const TripRoute = () => {
@@ -57,6 +58,7 @@ const TripRoute = () => {
         departureCity: selectedTrip.departureCity.id,
         arrivalCity: selectedTrip.arrivalCity.id,
         routeNumber: selectedTrip.routeNumber,
+        transitCityIds: selectedTrip.transitCityIds,
         prices: selectedTrip.prices,
       });
     }
@@ -92,6 +94,7 @@ const TripRoute = () => {
     departureCity: string;
     arrivalCity: string;
     routeNumber: string;
+    transitCityIds: string[];
     prices: Prices[];
   }) => {
     const departureCity = cities.find(c => c.id === formValues.departureCity);
@@ -104,6 +107,7 @@ const TripRoute = () => {
       departureCity: {id: departureCity.id, name: departureCity.name},
       arrivalCity: {id: arrivalCity.id, name: arrivalCity.name},
       routeNumber: formValues.routeNumber,
+      transitCityIds: formValues.transitCityIds,
       prices: formValues.prices,
     };
   };
@@ -171,6 +175,17 @@ const TripRoute = () => {
               dataIndex={['arrivalCity', 'name']}
             />
             <Table.Column<Trip> title={'Route Number'} align={'center'} dataIndex={'routeNumber'} />
+            <Table.Column<Trip>
+              title={'Transit Cities'}
+              render={(_, record) => {
+                return (record.transitCityIds || [])
+                  .map(id => {
+                    const city = cities.find(c => c.id === id);
+                    return city ? city.name : '';
+                  })
+                  .join(' -> ');
+              }}
+            />
             <Table.Column<Trip>
               title={'Ticket Price'}
               align={'right'}
@@ -246,6 +261,15 @@ const TripRoute = () => {
                 name={'routeNumber'}
                 rules={[{required: true, message: 'Route Number is required'}]}>
                 <Input placeholder={'Route Number'} style={{width: '30%'}} />
+              </Form.Item>
+
+              <Form.Item label={'Transit Cities'} name={'transitCityIds'}>
+                <Select
+                  mode="multiple"
+                  showSearch
+                  optionFilterProp={'label'}
+                  options={cities.map(city => ({label: city.name, value: city.id}))}
+                />
               </Form.Item>
 
               <Form.List

@@ -53,7 +53,7 @@ export async function deleteById(id: string) {
 }
 
 export const getTripByCityIds = async (departureCityId: string, arrivalCityId: string) => {
-  const snap = await getDocs(
+  let snap = await getDocs(
     query(
       collection(db, FirestoreCollections.Trip),
       where('departureCity.id', '==', departureCityId),
@@ -62,9 +62,55 @@ export const getTripByCityIds = async (departureCityId: string, arrivalCityId: s
     ),
   );
 
-  if (snap.empty || !snap.docs.length) {
-    return;
+  if (!snap.empty || snap.docs.length) {
+    return {...snap.docs[0].data(), id: snap.docs[0].id} as Trip;
   }
 
-  return {...snap.docs[0].data(), id: snap.docs[0].id} as Trip;
+  snap = await getDocs(
+    query(
+      collection(db, FirestoreCollections.Trip),
+      where('departureCity.id', '==', departureCityId),
+      where('transitCityIds', 'array-contains', arrivalCityId),
+      limit(1),
+    ),
+  );
+
+  if (!snap.empty || snap.docs.length) {
+    return {...snap.docs[0].data(), id: snap.docs[0].id} as Trip;
+  }
+
+  snap = await getDocs(
+    query(
+      collection(db, FirestoreCollections.Trip),
+      where('arrivalCity.id', '==', arrivalCityId),
+      where('transitCityIds', 'array-contains', departureCityId),
+      limit(1),
+    ),
+  );
+
+  if (!snap.empty || snap.docs.length) {
+    return {...snap.docs[0].data(), id: snap.docs[0].id} as Trip;
+  }
+
+  snap = await getDocs(
+    query(
+      collection(db, FirestoreCollections.Trip),
+      where('transitCityIds', 'array-contains-any', [arrivalCityId, departureCityId]),
+    ),
+  );
+
+  if (!snap.empty || snap.docs.length) {
+    let foundTrip: Trip | undefined;
+    snap.docs.forEach(doc => {
+      const trip = {...doc.data(), id: doc.id} as Trip;
+      const departureIndex = trip.transitCityIds.findIndex(id => id === departureCityId);
+      const arrivalIndex = trip.transitCityIds.findIndex(id => id === arrivalCityId);
+
+      if (departureIndex > -1 && arrivalIndex > -1) {
+        if (departureIndex < arrivalIndex) foundTrip = trip;
+      }
+    });
+
+    return foundTrip;
+  }
 };
