@@ -165,8 +165,7 @@ function ScheduleSearchRoute() {
                   showSearch
                   labelInValue
                   placeholder={'Please enter the city name'}
-                  onSearch={debouncedDepartureSearch}
-                  onChange={value => setDepartureCity(value.label)}>
+                  onSearch={debouncedDepartureSearch}>
                   {departureCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}
@@ -185,8 +184,7 @@ function ScheduleSearchRoute() {
                   showSearch
                   labelInValue
                   placeholder={'Please enter the city name'}
-                  onSearch={debouncedArrivalSearch}
-                  onChange={value => setArrivalCity(value.label)}>
+                  onSearch={debouncedArrivalSearch}>
                   {arrivalCities.map(city => (
                     <Select.Option key={city.id} value={city.name}>
                       {city.name}

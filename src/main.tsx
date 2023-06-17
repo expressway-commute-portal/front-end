@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import Routes from './routes';
 import {ConfigProvider} from 'antd';
+import {registerSW} from 'virtual:pwa-register';
+
+registerSW({immediate: true});
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <>
