@@ -1,9 +1,7 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import Routes from './routes';
 import {ConfigProvider} from 'antd';
+import ReactDOM from 'react-dom/client';
 import {registerSW} from 'virtual:pwa-register';
+import RootRoute from './routes';
 
 registerSW({immediate: true});
 
@@ -16,7 +14,7 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           colorPrimary: '#1e88e5',
         },
       }}>
-      <Routes />
+      <RootRoute />
     </ConfigProvider>
   </>,
 );
