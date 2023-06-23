@@ -163,25 +163,25 @@ function ScheduleSearchRoute() {
         grid={gridConfig}
         dataSource={schedules}
         renderItem={schedule => {
-          let departureCity = trip.departureCity.name;
-          let departureTime: Date | undefined = schedule.departureTime;
-          if (selectedDepartureCity.id !== trip.departureCity.id) {
+          const departureCity = trip.departureCity.name;
+          const departureTime: Date | undefined = schedule.departureTime;
+          /* if (selectedDepartureCity.id !== trip.departureCity.id) {
             departureCity = selectedDepartureCity.name;
             const transitTime = schedule.transitTimes.find(
               t => t.cityId === selectedDepartureCity.id,
             )?.time;
             departureTime = transitTime;
-          }
+          } */
 
-          let arrivalCity = trip.arrivalCity.name;
-          let arrivalTime: Date | undefined = schedule.arrivalTime;
-          if (selectedArrivalCity.id !== trip.arrivalCity.id) {
+          const arrivalCity = trip.arrivalCity.name;
+          const arrivalTime: Date | undefined = schedule.arrivalTime;
+          /* if (selectedArrivalCity.id !== trip.arrivalCity.id) {
             arrivalCity = selectedArrivalCity.name;
             const transitTime = schedule.transitTimes.find(
               t => t.cityId === selectedArrivalCity.id,
             )?.time;
             arrivalTime = transitTime;
-          }
+          } */
 
           return (
             <List.Item>
@@ -190,6 +190,7 @@ function ScheduleSearchRoute() {
                 arrivalCity={arrivalCity}
                 departureTime={departureTime}
                 arrivalTime={arrivalTime}
+                routeNo={trip.routeNumber}
                 price={price}
                 busId={schedule.busId}
                 buttonLoading={getBusByIdLoading && selectedSchedule?.id === schedule.id}

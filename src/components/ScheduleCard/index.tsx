@@ -8,6 +8,7 @@ type Props = {
   arrivalCity: string;
   departureTime?: Date;
   arrivalTime?: Date;
+  routeNo?: string;
   price: string;
   busId?: string;
   buttonLoading: boolean;
@@ -21,6 +22,7 @@ const ScheduleCard = ({
   arrivalCity,
   departureTime,
   arrivalTime,
+  routeNo,
   price,
   busId,
   buttonLoading,
@@ -30,17 +32,11 @@ const ScheduleCard = ({
   return (
     <Card
       title={
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-          }}>
+        <div>
           <div>
-            {departureCity} &nbsp; <ArrowRightOutlined /> &nbsp; {arrivalCity}{' '}
+            {departureCity} &nbsp; <ArrowRightOutlined /> &nbsp; {arrivalCity}
           </div>
-          &nbsp; &nbsp;
+          <div>{routeNo}</div>
           {popoverContent && (
             <Popover content={popoverContent} placement="bottomRight">
               <Button type="default" shape="round" icon={<BranchesOutlined />} />
@@ -57,8 +53,8 @@ const ScheduleCard = ({
         <Descriptions.Item label="Arrival Time">
           {arrivalTime ? DateTime.fromJSDate(arrivalTime).toFormat('hh:mm a') : ''}
         </Descriptions.Item>
-        <Descriptions.Item label="Ticket Price">
-          <b>{price}</b>
+        <Descriptions.Item label="Total Ticket Price">
+          <b>{price}/=</b>
         </Descriptions.Item>
       </Descriptions>
       <br />
