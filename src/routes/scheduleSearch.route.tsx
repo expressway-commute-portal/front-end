@@ -288,7 +288,7 @@ function ScheduleSearchRoute() {
       {selectedBus && (
         <Modal open={open} onCancel={onCloseModal} destroyOnClose maskClosable footer={null}>
           <Descriptions
-            title={'Bus Details'}
+            title={<div style={{textAlign: 'center'}}>Bus Details</div>}
             bordered
             layout={'horizontal'}
             column={1}

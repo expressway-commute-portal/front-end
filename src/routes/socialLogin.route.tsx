@@ -38,9 +38,16 @@ const SocialLoginRoute = () => {
     <Row justify={'center'}>
       <Col xs={24} sm={20} md={16} lg={12} xl={6} xxl={4} style={{marginTop: 20}}>
         {contextHolder}
-        <Card cover={<img src={'/pwa-512x512.png'} />}>
+        <Card
+          cover={
+            <div style={{textAlign: 'center'}}>
+              <img src={'./assets/highway-sign.png'} width={300} height={300} />
+            </div>
+          }
+          title={'Expressway Commute Portal'}
+          headStyle={{textAlign: 'center', fontSize: 20}}
+          bodyStyle={{textAlign: 'center'}}>
           <Button
-            type={'default'}
             size={'large'}
             loading={googleSignInLoading}
             block
