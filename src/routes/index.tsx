@@ -1,14 +1,14 @@
 import 'antd/dist/reset.css';
 
 import {Result, Spin, message} from 'antd';
-import {getAnalytics, logEvent} from 'firebase/analytics';
+import {logEvent} from 'firebase/analytics';
 import {onAuthStateChanged} from 'firebase/auth';
 import {enableIndexedDbPersistence} from 'firebase/firestore';
 import {useEffect, useState} from 'react';
 import {Navigate, RouterProvider, createBrowserRouter, useLocation} from 'react-router-dom';
 import AdminLayout from '../components/AdminLayout';
 import UserLayout from '../components/UserLayout/UserLayout';
-import {auth, db} from '../config/firebase';
+import {analytics, auth, db} from '../config/firebase';
 import {useAuthStore} from '../store/auth.store';
 import {useUserStore} from '../store/user.store';
 import BusRoute from './bus.route';
@@ -19,8 +19,6 @@ import SocialLoginRoute from './socialLogin.route';
 import TripRoute from './trip.route';
 
 const adminRoutes = ['/schedule', '/bus', '/city', '/trip'];
-
-const analytics = getAnalytics();
 
 const router = createBrowserRouter([
   {
@@ -36,7 +34,11 @@ const router = createBrowserRouter([
   },
   {
     path: '/login',
-    element: <SocialLoginRoute />,
+    element: (
+      <UserLayout>
+        <SocialLoginRoute />
+      </UserLayout>
+    ),
     errorElement: <h1>404 Error Page</h1>,
   },
   {
@@ -179,10 +181,6 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
         replace
       />
     );
-  }
-
-  if (loggedInUser && loggedInUser.role !== 'ADMIN') {
-    return <Result title="Site is under maintenance. Please bear with us for a while." />;
   }
 
   if (loggedInUser && adminRoutes.includes(location.pathname) && loggedInUser.role !== 'ADMIN') {

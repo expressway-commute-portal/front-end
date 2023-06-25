@@ -1,12 +1,11 @@
 import {GoogleOutlined} from '@ant-design/icons';
-import {Button, Card, Col, Row, message} from 'antd';
-import {getAnalytics, logEvent} from 'firebase/analytics';
+import {Button, Card, Col, Row, Typography, message} from 'antd';
+import {logEvent} from 'firebase/analytics';
 import {useEffect} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
+import {analytics} from '../config/firebase';
 import {useAuthStore} from '../store/auth.store';
 import {FirebaseErrorMap} from '../util/firebaseErrors';
-
-const analytics = getAnalytics();
 
 const SocialLoginRoute = () => {
   const location = useLocation();
@@ -36,7 +35,7 @@ const SocialLoginRoute = () => {
 
   return (
     <Row justify={'center'}>
-      <Col xs={24} sm={20} md={16} lg={12} xl={6} xxl={4} style={{marginTop: 20}}>
+      <Col xs={24} sm={20} md={16} lg={12} xl={8} xxl={6} style={{marginTop: 20}}>
         {contextHolder}
         <Card
           cover={
@@ -45,7 +44,7 @@ const SocialLoginRoute = () => {
             </div>
           }
           title={'Expressway Commute Portal'}
-          headStyle={{textAlign: 'center', fontSize: 20}}
+          headStyle={{textAlign: 'center', fontSize: 18}}
           bodyStyle={{textAlign: 'center'}}>
           <Button
             size={'large'}
@@ -56,7 +55,22 @@ const SocialLoginRoute = () => {
             onClick={onGoogleSignInClick}>
             Continue with Google
           </Button>
+          <br />
+          <br />
+          <Typography.Text type="secondary">
+            {' '}
+            By Signing in, you agree to our{' '}
+            <a
+              href={'https://www.termsfeed.com/live/9a447956-ffe0-4cf2-9280-99535b6f6255'}
+              target="_blank"
+              rel="noreferrer">
+              Terms and Conditions
+            </a>
+          </Typography.Text>
         </Card>
+        <br />
+        <br />
+        <br />
       </Col>
     </Row>
   );

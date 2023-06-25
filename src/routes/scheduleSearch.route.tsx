@@ -12,10 +12,12 @@ import {
   Space,
   message,
 } from 'antd';
+import {logEvent} from 'firebase/analytics';
 import _debounce from 'lodash/debounce';
 import {useEffect, useMemo, useState} from 'react';
 import '../App.css';
 import ScheduleCard from '../components/ScheduleCard';
+import {analytics} from '../config/firebase';
 import {City} from '../models/City';
 import {Schedule} from '../models/Schedule';
 import {useBusStore} from '../store/bus.store';
@@ -109,6 +111,10 @@ function ScheduleSearchRoute() {
 
     if (count === 0) {
       messageApi.warning('No schedules');
+      logEvent(analytics, 'empty_search_result', {
+        departureCity: selectedDepartureCity?.name,
+        arrivalCity: selectedArrivalCity?.name,
+      });
     }
   };
 
@@ -206,14 +212,10 @@ function ScheduleSearchRoute() {
   return (
     <>
       {contextHolder}
-      <Row justify={'center'}>
-        <Col style={{border: ''}}>
+      <Row justify={'center'} style={{marginTop: 20}}>
+        <Col>
           <Card title={'Expressway Bus Schedule'} headStyle={{textAlign: 'center'}}>
-            <Form
-              labelAlign={'right'}
-              labelCol={{span: 10}}
-              style={{border: ''}}
-              onFinish={onFinish}>
+            <Form labelAlign={'right'} labelCol={{span: 10}} onFinish={onFinish}>
               <Form.Item
                 label={'Departure City'}
                 name={'departureCity'}
