@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 import {City, FirebaseCity} from '../models/City';
 import * as cityService from '../services/city.service';
+import {devtools} from 'zustand/middleware';
 
 interface State {
   cities: City[];
@@ -25,72 +26,74 @@ interface State {
   getArrivalCitiesByNameLoading: boolean;
 }
 
-export const useCityStore = create<State>(set => ({
-  cities: [],
-  departureCities: [],
-  arrivalCities: [],
+export const useCityStore = create<State>()(
+  devtools(set => ({
+    cities: [],
+    departureCities: [],
+    arrivalCities: [],
 
-  getCitiesLoading: false,
-  createCityLoading: false,
-  updateCityLoading: false,
-  deleteCityLoading: false,
-  getArrivalCitiesByNameLoading: false,
-  getDepartureCitiesByNameLoading: false,
+    getCitiesLoading: false,
+    createCityLoading: false,
+    updateCityLoading: false,
+    deleteCityLoading: false,
+    getArrivalCitiesByNameLoading: false,
+    getDepartureCitiesByNameLoading: false,
 
-  getCities: async () => {
-    set({getCitiesLoading: true});
-    try {
-      const cities = await cityService.getAll();
-      set({cities});
-    } finally {
-      set({getCitiesLoading: false});
-    }
-  },
-  getPredefinedCities: async () => {
-    set({getCitiesLoading: true});
-    try {
-      const cities = await cityService.getByPredefinedNames();
-      set({departureCities: cities, arrivalCities: cities});
-    } finally {
-      set({getCitiesLoading: false});
-    }
-  },
-  createCity: async (city: FirebaseCity) => {
-    set({createCityLoading: true});
-    try {
-      await cityService.create(city);
-    } finally {
-      set({createCityLoading: false});
-    }
-  },
-  updateCity: async (id: string, city: Partial<City>) => {
-    set({updateCityLoading: true});
-    try {
-      await cityService.update(id, city);
-    } finally {
-      set({updateCityLoading: false});
-    }
-  },
-  deleteCity: async (id: string) => {
-    set({deleteCityLoading: true});
-    try {
-      await cityService.deleteById(id);
-    } finally {
-      set({deleteCityLoading: false});
-    }
-  },
+    getCities: async () => {
+      set({getCitiesLoading: true});
+      try {
+        const cities = await cityService.getAll();
+        set({cities});
+      } finally {
+        set({getCitiesLoading: false});
+      }
+    },
+    getPredefinedCities: async () => {
+      set({getCitiesLoading: true});
+      try {
+        const cities = await cityService.getByPredefinedNames();
+        set({departureCities: cities, arrivalCities: cities});
+      } finally {
+        set({getCitiesLoading: false});
+      }
+    },
+    createCity: async (city: FirebaseCity) => {
+      set({createCityLoading: true});
+      try {
+        await cityService.create(city);
+      } finally {
+        set({createCityLoading: false});
+      }
+    },
+    updateCity: async (id: string, city: Partial<City>) => {
+      set({updateCityLoading: true});
+      try {
+        await cityService.update(id, city);
+      } finally {
+        set({updateCityLoading: false});
+      }
+    },
+    deleteCity: async (id: string) => {
+      set({deleteCityLoading: true});
+      try {
+        await cityService.deleteById(id);
+      } finally {
+        set({deleteCityLoading: false});
+      }
+    },
 
-  getDepartureCitiesByName: async name => {
-    set({getDepartureCitiesByNameLoading: true});
-    const cities = await cityService.getAllByName(name);
-    set({departureCities: cities, getDepartureCitiesByNameLoading: false});
-  },
-  getArrivalCitiesByName: async name => {
-    set({getArrivalCitiesByNameLoading: true});
-    const cities = await cityService.getAllByName(name);
-    set({arrivalCities: cities, getArrivalCitiesByNameLoading: false});
-  },
+    getDepartureCitiesByName: async name => {
+      set({getDepartureCitiesByNameLoading: true});
+      const cities = await cityService.getAllByName(name);
+      set({departureCities: cities, getDepartureCitiesByNameLoading: false});
+    },
+    getArrivalCitiesByName: async name => {
+      set({getArrivalCitiesByNameLoading: true});
+      const cities = await cityService.getAllByName(name);
+      set({arrivalCities: cities, getArrivalCitiesByNameLoading: false});
+    },
 
-  clearDepartureCities: () => set({departureCities: []}),
-  clearArrivalCities: () => set({arrivalCities: []}),
-}));
+    clearDepartureCities: () => set({departureCities: []}),
+    clearArrivalCities: () => set({arrivalCities: []}),
+  })),
+);
