@@ -1,22 +1,22 @@
 import 'antd/dist/reset.css';
 
-import {createBrowserRouter, Navigate, RouterProvider, useLocation} from 'react-router-dom';
-import React, {useEffect, useState} from 'react';
-import BusRoute from './bus.route';
-import {onAuthStateChanged} from 'firebase/auth';
+import {Result, Spin, message} from 'antd';
 import {getAnalytics, logEvent} from 'firebase/analytics';
-import CityRoute from './city.route';
-import TripRoute from './trip.route';
-import ScheduleRoute from './schedule.route';
-import {useAuthStore} from '../store/auth.store';
-import AdminLayout from '../components/AdminLayout';
-import {auth, db} from '../config/firebase';
-import {message, Result, Spin} from 'antd';
-import SocialLoginRoute from './socialLogin.route';
-import ScheduleSearchRoute from './scheduleSearch.route';
-import {useUserStore} from '../store/user.store';
+import {onAuthStateChanged} from 'firebase/auth';
 import {enableIndexedDbPersistence} from 'firebase/firestore';
+import {useEffect, useState} from 'react';
+import {Navigate, RouterProvider, createBrowserRouter, useLocation} from 'react-router-dom';
+import AdminLayout from '../components/AdminLayout';
 import UserLayout from '../components/UserLayout/UserLayout';
+import {auth, db} from '../config/firebase';
+import {useAuthStore} from '../store/auth.store';
+import {useUserStore} from '../store/user.store';
+import BusRoute from './bus.route';
+import CityRoute from './city.route';
+import ScheduleRoute from './schedule.route';
+import ScheduleSearchRoute from './scheduleSearch.route';
+import SocialLoginRoute from './socialLogin.route';
+import TripRoute from './trip.route';
 
 const adminRoutes = ['/schedule', '/bus', '/city', '/trip'];
 
@@ -85,31 +85,30 @@ const router = createBrowserRouter([
   },
 ]);
 
-const Routes = () => {
-  return <Result title="Site is under maintenance. Please bear with us for a while." />;
-  // return <RouterProvider router={router} />;
+const RootRoute = () => {
+  return <RouterProvider router={router} />;
 };
 
 function AuthenticationRoute({children}: {children: JSX.Element}) {
   const firebaseUserDetails = useAuthStore(state => state.firebaseUserDetails);
-  console.log('-> firebaseUserDetails', firebaseUserDetails);
 
   const getLoggedInUser = useUserStore(state => state.getLoggedInUser);
   const loggedInUser = useUserStore(state => state.loggedInUser);
-  console.log('-> loggedInUser', loggedInUser);
 
   const [loading, setLoading] = useState(true);
 
   const location = useLocation();
 
+  const [messageApi, contextHolder] = message.useMessage();
+
   useEffect(() => {
     return onAuthStateChanged(auth, async user => {
-      setLoading(false);
-
       if (user) {
         useAuthStore.setState({firebaseUserDetails: user});
         logEvent(analytics, 'login', {uid: user.uid});
       } else {
+        setLoading(false);
+        messageApi.error('You are not authenticated. Please login again');
         useAuthStore.setState({firebaseUserDetails: undefined});
         useUserStore.setState({loggedInUser: undefined});
       }
@@ -139,9 +138,19 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
   }, []);
 
   useEffect(() => {
-    if (firebaseUserDetails) {
-      getLoggedInUser(firebaseUserDetails.uid).then().catch();
-    }
+    const run = async () => {
+      if (firebaseUserDetails) {
+        try {
+          await getLoggedInUser(firebaseUserDetails.uid);
+        } catch (e) {
+          messageApi.error(e.message || 'Something went wrong');
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    run().then();
   }, [firebaseUserDetails]);
 
   if (loading) {
@@ -153,14 +162,39 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
   }
 
   if (!firebaseUserDetails) {
-    return <Navigate to="/login" state={{from: location}} replace />;
+    return (
+      <Navigate
+        to="/login"
+        state={{from: location, errorMessage: 'You are not authenticated. Please login again'}}
+        replace
+      />
+    );
+  }
+
+  if (!loggedInUser) {
+    return (
+      <Navigate
+        to="/login"
+        state={{from: location, errorMessage: 'You are not authorized. Please contact admin'}}
+        replace
+      />
+    );
+  }
+
+  if (loggedInUser && loggedInUser.role !== 'ADMIN') {
+    return <Result title="Site is under maintenance. Please bear with us for a while." />;
   }
 
   if (loggedInUser && adminRoutes.includes(location.pathname) && loggedInUser.role !== 'ADMIN') {
     return <Navigate to="/login" state={{from: location}} replace />;
   }
 
-  return children;
+  return (
+    <>
+      {contextHolder}
+      {children}
+    </>
+  );
 }
 
-export default Routes;
+export default RootRoute;

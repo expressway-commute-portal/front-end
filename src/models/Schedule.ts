@@ -8,11 +8,6 @@ interface BaseSchedule {
 
   enabled: boolean;
 
-  transitTimes: {
-    cityId: string;
-    departureTime: Timestamp;
-  }[];
-
   createdAt: Timestamp;
   updatedAt: Timestamp;
 }
@@ -20,12 +15,21 @@ interface BaseSchedule {
 export interface Schedule extends BaseSchedule {
   id: string;
   departureTime: Date;
-  arrivalTime: Date | null;
+  arrivalTime?: Date;
+
+  transitTimes: {
+    cityId: string;
+    time: Date;
+  }[];
 }
 
 export interface FirebaseSchedule extends BaseSchedule {
   departureTime: Timestamp;
-  arrivalTime: Timestamp | null;
+  arrivalTime?: Timestamp;
+  transitTimes: {
+    cityId: string;
+    time: Timestamp;
+  }[];
 }
 
 export type ScheduleWithRelations = Schedule & {trip?: Trip; bus?: Bus};
@@ -42,7 +46,11 @@ export const scheduleConverter: FirestoreDataConverter<Schedule> = {
       ...documentData,
       id: snapshot.id,
       departureTime: documentData.departureTime.toDate(),
-      arrivalTime: documentData.arrivalTime ? documentData.arrivalTime.toDate() : null,
+      arrivalTime: documentData.arrivalTime ? documentData.arrivalTime.toDate() : undefined,
+      transitTimes: (documentData.transitTimes || []).map(transitTime => ({
+        ...transitTime,
+        time: transitTime.time.toDate(),
+      })),
     };
   },
 };

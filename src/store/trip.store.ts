@@ -1,6 +1,7 @@
 import {create} from 'zustand';
 import * as tripService from '../services/trip.service';
 import {FirebaseTrip, Trip} from '../models/Trip';
+import {devtools} from 'zustand/middleware';
 
 interface State {
   trips: Trip[];
@@ -18,55 +19,57 @@ interface State {
   getTripByCityIds: (departureCityId: string, arrivalCityId: string) => Promise<void>;
 }
 
-export const useTripStore = create<State>(set => ({
-  trips: [],
-  trip: undefined,
+export const useTripStore = create<State>()(
+  devtools(set => ({
+    trips: [],
+    trip: undefined,
 
-  getTripsLoading: false,
-  createTripLoading: false,
-  updateTripLoading: false,
-  deleteTripLoading: false,
+    getTripsLoading: false,
+    createTripLoading: false,
+    updateTripLoading: false,
+    deleteTripLoading: false,
 
-  getTrips: async () => {
-    set({getTripsLoading: true});
-    try {
-      const trips = await tripService.getAll();
-      set({trips});
-    } finally {
-      set({getTripsLoading: false});
-    }
-  },
+    getTrips: async () => {
+      set({getTripsLoading: true});
+      try {
+        const trips = await tripService.getAll();
+        set({trips});
+      } finally {
+        set({getTripsLoading: false});
+      }
+    },
 
-  createTrip: async (trip: FirebaseTrip) => {
-    set({createTripLoading: true});
-    try {
-      await tripService.create(trip);
-    } finally {
-      set({createTripLoading: false});
-    }
-  },
+    createTrip: async (trip: FirebaseTrip) => {
+      set({createTripLoading: true});
+      try {
+        await tripService.create(trip);
+      } finally {
+        set({createTripLoading: false});
+      }
+    },
 
-  updateTrip: async (id: string, trip: Partial<Trip>) => {
-    set({updateTripLoading: true});
-    try {
-      await tripService.update(id, trip);
-    } finally {
-      set({updateTripLoading: false});
-    }
-  },
+    updateTrip: async (id: string, trip: Partial<Trip>) => {
+      set({updateTripLoading: true});
+      try {
+        await tripService.update(id, trip);
+      } finally {
+        set({updateTripLoading: false});
+      }
+    },
 
-  deleteTrip: async (id: string) => {
-    set({deleteTripLoading: true});
-    try {
-      await tripService.deleteById(id);
-    } finally {
-      set({deleteTripLoading: false});
-    }
-  },
+    deleteTrip: async (id: string) => {
+      set({deleteTripLoading: true});
+      try {
+        await tripService.deleteById(id);
+      } finally {
+        set({deleteTripLoading: false});
+      }
+    },
 
-  getTripByCityIds: async (departureCityId, arrivalCityId) => {
-    set({getTripsLoading: true});
-    const trip = await tripService.getTripByCityIds(departureCityId, arrivalCityId);
-    set({trip, getTripsLoading: false});
-  },
-}));
+    getTripByCityIds: async (departureCityId, arrivalCityId) => {
+      set({getTripsLoading: true});
+      const trip = await tripService.getTripByCityIds(departureCityId, arrivalCityId);
+      set({trip, getTripsLoading: false});
+    },
+  })),
+);
