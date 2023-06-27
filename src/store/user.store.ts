@@ -3,15 +3,16 @@ import {User} from '../models/User';
 import * as userService from '../services/user.service';
 import {devtools} from 'zustand/middleware';
 
-interface State {
+export interface UserState {
   loggedInUser: User | undefined;
 
   getLoggedInUser: (uid: string) => Promise<void>;
+  findAndWatchUser: (uid: string) => () => void;
 
   getLoggedInUserLoading: boolean;
 }
 
-export const useUserStore = create<State>()(
+export const useUserStore = create<UserState>()(
   devtools(set => ({
     loggedInUser: undefined,
 
@@ -25,6 +26,9 @@ export const useUserStore = create<State>()(
       } finally {
         set({getLoggedInUserLoading: false});
       }
+    },
+    findAndWatchUser: (uid: string) => {
+      return userService.findAndWatchByUID(uid, set);
     },
   })),
 );

@@ -95,6 +95,7 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
   const firebaseUserDetails = useAuthStore(state => state.firebaseUserDetails);
 
   const getLoggedInUser = useUserStore(state => state.getLoggedInUser);
+  const findAndWatchUser = useUserStore(state => state.findAndWatchUser);
   const loggedInUser = useUserStore(state => state.loggedInUser);
 
   const [loading, setLoading] = useState(true);
@@ -140,20 +141,16 @@ function AuthenticationRoute({children}: {children: JSX.Element}) {
   }, []);
 
   useEffect(() => {
-    const run = async () => {
-      if (firebaseUserDetails) {
-        try {
-          await getLoggedInUser(firebaseUserDetails.uid);
-        } catch (e) {
-          messageApi.error(e.message || 'Something went wrong');
-        } finally {
-          setLoading(false);
-        }
-      }
-    };
-
-    run().then();
+    if (firebaseUserDetails) {
+      return findAndWatchUser(firebaseUserDetails.uid);
+    }
   }, [firebaseUserDetails]);
+
+  useEffect(() => {
+    if (loggedInUser) {
+      setLoading(false);
+    }
+  }, [loggedInUser]);
 
   if (loading) {
     return (

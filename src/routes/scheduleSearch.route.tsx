@@ -1,4 +1,4 @@
-import {PhoneTwoTone, SearchOutlined} from '@ant-design/icons';
+import {PhoneTwoTone, SearchOutlined, ClearOutlined} from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -114,6 +114,7 @@ function ScheduleSearchRoute() {
       logEvent(analytics, 'empty_search_result', {
         departureCity: selectedDepartureCity?.name,
         arrivalCity: selectedArrivalCity?.name,
+        bothCities: `${selectedDepartureCity?.name} -> ${selectedArrivalCity?.name}`,
       });
     }
   };
@@ -136,19 +137,26 @@ function ScheduleSearchRoute() {
     }
   };
 
+  const clearAll = () => {
+    clearDepartureCities();
+    clearArrivalCities();
+    clearSchedules();
+  };
+
   const renderSchedules = () => {
     if (!trip || !selectedDepartureCity || !selectedArrivalCity) {
       return null;
     }
 
-    let price = `${trip.price.toLocaleString()}`;
+    let price = '';
     if (trip.prices.length > 1) {
       price = trip.prices
         .map(p => `${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
         .join(' | ');
-    }
-    if (trip.prices.length === 1) {
+    } else if (trip.prices.length === 1) {
       price = `${trip.prices[0].price.toLocaleString()}`;
+    } else {
+      price = `${trip.price.toLocaleString()}`;
     }
 
     let columns = 3;
@@ -217,7 +225,7 @@ function ScheduleSearchRoute() {
           <Card title={'Expressway Bus Schedule'} headStyle={{textAlign: 'center'}}>
             <Form labelAlign={'right'} labelCol={{span: 10}} onFinish={onFinish}>
               <Form.Item
-                label={'Departure City'}
+                // label={'From'}
                 name={'departureCity'}
                 style={{width: 300}}
                 rules={[{required: true, message: 'Departure city is required'}]}>
@@ -225,7 +233,8 @@ function ScheduleSearchRoute() {
                   loading={getDepartureCitiesByNameLoading}
                   showSearch
                   labelInValue
-                  placeholder={'Please enter the city name'}
+                  size="large"
+                  placeholder={'From'}
                   onSearch={debouncedDepartureSearch}
                   onSelect={({key, label}: {key: string; label: string}) => {
                     setSelectedDepartureCity({id: key, name: label});
@@ -240,7 +249,7 @@ function ScheduleSearchRoute() {
               </Form.Item>
 
               <Form.Item
-                label={'Arrival City'}
+                // label={'To'}
                 name={'arrivalCity'}
                 style={{width: 300}}
                 rules={[{required: true, message: 'Arrival city is required'}]}>
@@ -248,7 +257,8 @@ function ScheduleSearchRoute() {
                   loading={getArrivalCitiesByNameLoading}
                   showSearch
                   labelInValue
-                  placeholder={'Please enter the city name'}
+                  size="large"
+                  placeholder={'To'}
                   onSearch={debouncedArrivalSearch}
                   onSelect={({key, label}: {key: string; label: string}) => {
                     setSelectedArrivalCity({id: key, name: label});
@@ -271,6 +281,18 @@ function ScheduleSearchRoute() {
                   htmlType="submit"
                   icon={<SearchOutlined />}>
                   Search
+                </Button>
+                <br />
+              </Form.Item>
+              <Form.Item>
+                <Button
+                  block
+                  size={'large'}
+                  type="default"
+                  htmlType="reset"
+                  icon={<ClearOutlined />}
+                  onClick={clearAll}>
+                  Clear
                 </Button>
               </Form.Item>
             </Form>
