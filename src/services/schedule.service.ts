@@ -42,6 +42,17 @@ export async function getSchedulesByTripId(tripId: string) {
   return schedules;
 }
 
+export async function getSchedulesByTripIds(tripIds: string[]) {
+  const snap = await getDocs(
+    query(scheduleCollection, where('tripId', 'in', tripIds), where('enabled', '==', true)),
+  );
+  const schedules = snap.docs.map(doc => ({
+    ...doc.data(),
+  })) as Schedule[];
+  schedules.sort((a, b) => timeOnlyCompare(dayjs(a.departureTime), dayjs(b.departureTime)));
+  return schedules;
+}
+
 export const getAllWithRelations = async () => {
   const snap = await getDocs(query(scheduleCollection));
 

@@ -7,6 +7,8 @@ interface State {
   trips: Trip[];
   trip: Trip | undefined;
 
+  searchTrips: Trip[];
+
   getTripsLoading: boolean;
   createTripLoading: boolean;
   updateTripLoading: boolean;
@@ -16,13 +18,16 @@ interface State {
   createTrip: (trip: FirebaseTrip) => Promise<void>;
   updateTrip: (id: string, trip: Partial<Trip>) => Promise<void>;
   deleteTrip: (id: string) => Promise<void>;
-  getTripByCityIds: (departureCityId: string, arrivalCityId: string) => Promise<void>;
+  // getTripByCityIds: (departureCityId: string, arrivalCityId: string) => Promise<void>;
+  getTripsByCityIds: (departureCityId: string, arrivalCityId: string) => Promise<void>;
 }
 
 export const useTripStore = create<State>()(
   devtools(set => ({
     trips: [],
     trip: undefined,
+
+    searchTrips: [],
 
     getTripsLoading: false,
     createTripLoading: false,
@@ -66,10 +71,16 @@ export const useTripStore = create<State>()(
       }
     },
 
-    getTripByCityIds: async (departureCityId, arrivalCityId) => {
+    /* getTripByCityIds: async (departureCityId, arrivalCityId) => {
       set({getTripsLoading: true});
       const trip = await tripService.getTripByCityIds(departureCityId, arrivalCityId);
       set({trip, getTripsLoading: false});
+    }, */
+
+    getTripsByCityIds: async (departureCityId, arrivalCityId) => {
+      set({getTripsLoading: true});
+      const trips = await tripService.getTripsByCityIds(departureCityId, arrivalCityId);
+      set({searchTrips: trips, getTripsLoading: false});
     },
   })),
 );

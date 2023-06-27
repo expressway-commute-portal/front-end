@@ -41,9 +41,9 @@ export const useScheduleStore = create<State>()(
     getSchedules: async () => {
       set({getSchedulesLoading: true});
       try {
-        const trip = useTripStore.getState().trip;
-        if (trip) {
-          const schedules = await scheduleService.getSchedulesByTripId(trip.id);
+        const searchTrips = useTripStore.getState().searchTrips;
+        if (searchTrips.length) {
+          const schedules = await scheduleService.getSchedulesByTripIds(searchTrips.map(t => t.id));
           set({schedules});
           return schedules.length;
         } else {

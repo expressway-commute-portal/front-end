@@ -5,15 +5,14 @@ import {
   doc,
   getDoc,
   getDocs,
-  limit,
   query,
   Timestamp,
   updateDoc,
   where,
 } from 'firebase/firestore';
-import {FirebaseTrip, Trip} from '../models/Trip';
 import {db} from '../config/firebase';
 import {FirestoreCollections} from '../models';
+import {FirebaseTrip, Trip} from '../models/Trip';
 
 export async function getAll() {
   const snap = await getDocs(query(collection(db, FirestoreCollections.Trip)));
@@ -52,18 +51,17 @@ export async function deleteById(id: string) {
   await deleteDoc(doc(db, FirestoreCollections.Trip, id));
 }
 
-export const getTripByCityIds = async (departureCityId: string, arrivalCityId: string) => {
+export const getTripsByCityIds = async (departureCityId: string, arrivalCityId: string) => {
   let snap = await getDocs(
     query(
       collection(db, FirestoreCollections.Trip),
       where('departureCity.id', '==', departureCityId),
       where('arrivalCity.id', '==', arrivalCityId),
-      limit(1),
     ),
   );
 
   if (!snap.empty || snap.docs.length) {
-    return {...snap.docs[0].data(), id: snap.docs[0].id} as Trip;
+    return snap.docs.map(doc => ({...doc.data(), id: doc.id})) as Trip[];
   }
 
   snap = await getDocs(
@@ -71,12 +69,11 @@ export const getTripByCityIds = async (departureCityId: string, arrivalCityId: s
       collection(db, FirestoreCollections.Trip),
       where('departureCity.id', '==', departureCityId),
       where('transitCityIds', 'array-contains', arrivalCityId),
-      limit(1),
     ),
   );
 
   if (!snap.empty || snap.docs.length) {
-    return {...snap.docs[0].data(), id: snap.docs[0].id} as Trip;
+    return snap.docs.map(doc => ({...doc.data(), id: doc.id})) as Trip[];
   }
 
   snap = await getDocs(
@@ -84,12 +81,11 @@ export const getTripByCityIds = async (departureCityId: string, arrivalCityId: s
       collection(db, FirestoreCollections.Trip),
       where('arrivalCity.id', '==', arrivalCityId),
       where('transitCityIds', 'array-contains', departureCityId),
-      limit(1),
     ),
   );
 
   if (!snap.empty || snap.docs.length) {
-    return {...snap.docs[0].data(), id: snap.docs[0].id} as Trip;
+    return snap.docs.map(doc => ({...doc.data(), id: doc.id})) as Trip[];
   }
 
   snap = await getDocs(
@@ -100,17 +96,15 @@ export const getTripByCityIds = async (departureCityId: string, arrivalCityId: s
   );
 
   if (!snap.empty || snap.docs.length) {
-    let foundTrip: Trip | undefined;
-    snap.docs.forEach(doc => {
-      const trip = {...doc.data(), id: doc.id} as Trip;
-      const departureIndex = trip.transitCityIds.findIndex(id => id === departureCityId);
-      const arrivalIndex = trip.transitCityIds.findIndex(id => id === arrivalCityId);
+    return snap.docs
+      .filter(doc => {
+        const trip = doc.data() as FirebaseTrip;
+        const departureIndex = trip.transitCityIds.findIndex(id => id === departureCityId);
+        const arrivalIndex = trip.transitCityIds.findIndex(id => id === arrivalCityId);
 
-      if (departureIndex > -1 && arrivalIndex > -1) {
-        if (departureIndex < arrivalIndex) foundTrip = trip;
-      }
-    });
-
-    return foundTrip;
+        return departureIndex > -1 && arrivalIndex > -1 && departureIndex < arrivalIndex;
+      })
+      .map(doc => ({...doc.data(), id: doc.id} as Trip));
   }
+  return [];
 };

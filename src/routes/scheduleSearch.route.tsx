@@ -1,4 +1,4 @@
-import {PhoneTwoTone, SearchOutlined, ClearOutlined} from '@ant-design/icons';
+import {ClearOutlined, PhoneTwoTone, SearchOutlined} from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -51,9 +51,9 @@ function ScheduleSearchRoute() {
   const clearDepartureCities = useCityStore(state => state.clearDepartureCities);
   const clearArrivalCities = useCityStore(state => state.clearArrivalCities);
 
-  const trip = useTripStore(state => state.trip);
+  const searchTrips = useTripStore(state => state.searchTrips);
   const getTripsLoading = useTripStore(state => state.getTripsLoading);
-  const getTripByCityIds = useTripStore(state => state.getTripByCityIds);
+  const getTripsByCityIds = useTripStore(state => state.getTripsByCityIds);
 
   const schedules = useScheduleStore(state => state.schedules);
   const getSchedulesLoading = useScheduleStore(state => state.getSchedulesLoading);
@@ -106,7 +106,7 @@ function ScheduleSearchRoute() {
       departureCity: {key: departureCityId},
     } = values;
 
-    await getTripByCityIds(departureCityId, arrivalCityId);
+    await getTripsByCityIds(departureCityId, arrivalCityId);
     const count = await getSchedules();
 
     if (count === 0) {
@@ -144,19 +144,8 @@ function ScheduleSearchRoute() {
   };
 
   const renderSchedules = () => {
-    if (!trip || !selectedDepartureCity || !selectedArrivalCity) {
+    if (!searchTrips.length || !selectedDepartureCity || !selectedArrivalCity) {
       return null;
-    }
-
-    let price = '';
-    if (trip.prices.length > 1) {
-      price = trip.prices
-        .map(p => `${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
-        .join(' | ');
-    } else if (trip.prices.length === 1) {
-      price = `${trip.prices[0].price.toLocaleString()}`;
-    } else {
-      price = `${trip.price.toLocaleString()}`;
     }
 
     let columns = 3;
@@ -177,6 +166,22 @@ function ScheduleSearchRoute() {
         grid={gridConfig}
         dataSource={schedules}
         renderItem={schedule => {
+          const trip = searchTrips.find(t => t.id === schedule.tripId);
+          if (!trip) {
+            return <></>;
+          }
+
+          let price = '';
+          if (trip.prices.length > 1) {
+            price = trip.prices
+              .map(p => `${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
+              .join(' | ');
+          } else if (trip.prices.length === 1) {
+            price = `${trip.prices[0].price.toLocaleString()}`;
+          } else {
+            price = `${trip.price.toLocaleString()}`;
+          }
+
           const departureCity = trip.departureCity.name;
           const departureTime: Date | undefined = schedule.departureTime;
           /* if (selectedDepartureCity.id !== trip.departureCity.id) {
