@@ -1,7 +1,7 @@
 {
   "name": "expressway-commute-portal",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
@@ -21,6 +21,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.8.0",
     "sort-by": "^1.2.0",
+    "vite-plugin-svgr": "^3.2.0",
     "zustand": "^4.3.2"
   },
   "devDependencies": {

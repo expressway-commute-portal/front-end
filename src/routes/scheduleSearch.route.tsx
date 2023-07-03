@@ -25,6 +25,7 @@ import {useCityStore} from '../store/city.store';
 import {useScheduleStore} from '../store/schedule.store';
 import {useTripStore} from '../store/trip.store';
 import {getFirstLetters} from '../util';
+import TransitCities from '../components/TransitCities';
 
 function ScheduleSearchRoute() {
   const [open, setOpen] = useState(false);
@@ -174,43 +175,54 @@ function ScheduleSearchRoute() {
           let price = '';
           if (trip.prices.length > 1) {
             price = trip.prices
-              .map(p => `${p.price.toLocaleString()}(${getFirstLetters(p.serviceType)})`)
+              .map(p => `${p.price.toLocaleString()}/=(${getFirstLetters(p.serviceType)})`)
               .join(' | ');
           } else if (trip.prices.length === 1) {
-            price = `${trip.prices[0].price.toLocaleString()}`;
+            price = `${trip.prices[0].price.toLocaleString()}/=`;
           } else {
-            price = `${trip.price.toLocaleString()}`;
+            price = `${trip.price.toLocaleString()}/=`;
           }
 
-          const departureCity = trip.departureCity.name;
-          const departureTime: Date | undefined = schedule.departureTime;
-          /* if (selectedDepartureCity.id !== trip.departureCity.id) {
+          const routeDepartureCity = trip.departureCity.name;
+          const routeDepartureTime: Date | undefined = schedule.departureTime;
+          let departureCity = trip.departureCity.name;
+          let departureTime: Date | undefined = schedule.departureTime;
+
+          if (selectedDepartureCity.id !== trip.departureCity.id) {
             departureCity = selectedDepartureCity.name;
             const transitTime = schedule.transitTimes.find(
               t => t.cityId === selectedDepartureCity.id,
             )?.time;
             departureTime = transitTime;
-          } */
+          }
 
-          const arrivalCity = trip.arrivalCity.name;
-          const arrivalTime: Date | undefined = schedule.arrivalTime;
-          /* if (selectedArrivalCity.id !== trip.arrivalCity.id) {
+          const routeArrivalCity = trip.arrivalCity.name;
+          const routeArrivalTime: Date | undefined = schedule.arrivalTime;
+          let arrivalCity = trip.arrivalCity.name;
+          let arrivalTime = schedule.arrivalTime;
+
+          if (selectedArrivalCity.id !== trip.arrivalCity.id) {
             arrivalCity = selectedArrivalCity.name;
             const transitTime = schedule.transitTimes.find(
               t => t.cityId === selectedArrivalCity.id,
             )?.time;
             arrivalTime = transitTime;
-          } */
+          }
 
           return (
             <List.Item>
               <ScheduleCard
+                routeDepartureCity={routeDepartureCity}
+                routeDepartureTime={routeDepartureTime}
+                routeArrivalCity={routeArrivalCity}
+                routeArrivalTime={routeArrivalTime}
                 departureCity={departureCity}
                 arrivalCity={arrivalCity}
                 departureTime={departureTime}
                 arrivalTime={arrivalTime}
                 routeNo={trip.routeNumber}
                 price={price}
+                prices={trip.prices}
                 busId={schedule.busId}
                 buttonLoading={getBusByIdLoading && selectedSchedule?.id === schedule.id}
                 onBusDetailsButtonClick={() => onBusDetailsButtonClick(schedule)}
