@@ -27,7 +27,10 @@ const AdminLayout = ({children}: {children: JSX.Element}) => {
       <div className="logo" />
       <Menu theme="light" mode="horizontal" selectedKeys={[currentPage]} onClick={onClick}>
         <Menu.Item key="schedule">
-          <Link to="/schedule">Schedule</Link>
+          <Link to="/schedule">Permanent Schedules</Link>
+        </Menu.Item>
+        <Menu.Item key="rotationSchedule">
+          <Link to="/rotation-schedule">Rotation Schedules</Link>
         </Menu.Item>
         <Menu.Item key="trip">
           <Link to="/trip">Trip</Link>

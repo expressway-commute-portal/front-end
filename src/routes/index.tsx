@@ -1,6 +1,6 @@
 import 'antd/dist/reset.css';
 
-import {Result, Spin, message} from 'antd';
+import {Spin, message} from 'antd';
 import {logEvent} from 'firebase/analytics';
 import {onAuthStateChanged} from 'firebase/auth';
 import {enableIndexedDbPersistence} from 'firebase/firestore';
@@ -13,6 +13,7 @@ import {useAuthStore} from '../store/auth.store';
 import {useUserStore} from '../store/user.store';
 import BusRoute from './bus.route';
 import CityRoute from './city.route';
+import RotationScheduleRoute from './rotationSchedule';
 import ScheduleRoute from './schedule.route';
 import ScheduleSearchRoute from './scheduleSearch.route';
 import SocialLoginRoute from './socialLogin.route';
@@ -53,6 +54,17 @@ const router = createBrowserRouter([
     errorElement: <h1>404 Error Page</h1>,
   },
   {
+    path: '/rotation-schedule',
+    element: (
+      <AuthenticationRoute>
+        <AdminLayout>
+          <RotationScheduleRoute />
+        </AdminLayout>
+      </AuthenticationRoute>
+    ),
+    errorElement: <h1>404 Error Page</h1>,
+  },
+  {
     path: '/bus',
     element: (
       <AuthenticationRoute>
@@ -84,6 +96,10 @@ const router = createBrowserRouter([
       </AuthenticationRoute>
     ),
     errorElement: <h1>404 Error Page</h1>,
+  },
+  {
+    path: '*',
+    element: <Navigate to="/" replace />,
   },
 ]);
 

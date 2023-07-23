@@ -90,7 +90,6 @@ const ScheduleRoute = () => {
 
   useEffect(() => {
     if (selectedSchedule) {
-      console.log(selectedSchedule.transitTimes);
       form.setFieldsValue({
         tripId: selectedSchedule.tripId,
         busId: selectedSchedule.busId,

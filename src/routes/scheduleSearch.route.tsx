@@ -25,7 +25,6 @@ import {useCityStore} from '../store/city.store';
 import {useScheduleStore} from '../store/schedule.store';
 import {useTripStore} from '../store/trip.store';
 import {getFirstLetters} from '../util';
-import TransitCities from '../components/TransitCities';
 
 function ScheduleSearchRoute() {
   const [open, setOpen] = useState(false);

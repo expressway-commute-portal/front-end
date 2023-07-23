@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {
   addDoc,
   collection,
@@ -13,34 +14,21 @@ import {
 } from 'firebase/firestore';
 import {db} from '../config/firebase';
 import {FirestoreCollections} from '../models';
+import {Bus} from '../models/Bus';
 import {
   CreateFirebaseSchedule,
-  FirebaseSchedule,
   Schedule,
   scheduleConverter,
   ScheduleWithRelations,
 } from '../models/Schedule';
-import * as tripService from './trip.service';
-import * as busService from './bus.service';
-import {timeOnlyCompare} from '../util';
-import dayjs from 'dayjs';
 import {Trip} from '../models/Trip';
-import {Bus} from '../models/Bus';
+import {timeOnlyCompare} from '../util';
+import * as busService from './bus.service';
+import * as tripService from './trip.service';
 
 const scheduleCollection = collection(db, FirestoreCollections.Schedule).withConverter(
   scheduleConverter,
 );
-
-export async function getSchedulesByTripId(tripId: string) {
-  const snap = await getDocs(
-    query(scheduleCollection, where('tripId', '==', tripId), where('enabled', '==', true)),
-  );
-  const schedules = snap.docs.map(doc => ({
-    ...doc.data(),
-  })) as Schedule[];
-  schedules.sort((a, b) => timeOnlyCompare(dayjs(a.departureTime), dayjs(b.departureTime)));
-  return schedules;
-}
 
 export async function getSchedulesByTripIds(tripIds: string[]) {
   const snap = await getDocs(

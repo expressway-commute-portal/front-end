@@ -2,9 +2,15 @@ import {DocumentData, FirestoreDataConverter, Timestamp, WithFieldValue} from 'f
 import {Bus} from './Bus';
 import {Trip} from './Trip';
 
+export enum ScheduleType {
+  PERMANENT = 'PERMANENT',
+  ROTATION = 'ROTATION',
+}
+
 interface BaseSchedule {
   tripId: string;
   busId?: string;
+  type: ScheduleType;
 
   enabled: boolean;
 
