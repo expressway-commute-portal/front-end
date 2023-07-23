@@ -7,7 +7,7 @@ import {analytics} from '../config/firebase';
 import {useAuthStore} from '../store/auth.store';
 import {FirebaseErrorMap} from '../util/firebaseErrors';
 
-const SocialLoginRoute = () => {
+const SocialLoginPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -76,4 +76,4 @@ const SocialLoginRoute = () => {
   );
 };
 
-export default SocialLoginRoute;
+export default SocialLoginPage;

@@ -3,7 +3,7 @@ import {Button, Card, Col, Popover, Row, Typography} from 'antd';
 import {DateTime} from 'luxon';
 import {ReactNode} from 'react';
 import {ReactComponent as BusIcon} from '../../assets/icons/bus.svg';
-import {Prices} from '../../models/Trip';
+import {Prices} from '../../models/Route';
 
 type Props = {
   routeDepartureCity: string;

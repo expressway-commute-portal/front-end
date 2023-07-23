@@ -4,7 +4,6 @@ import {
   MinusCircleOutlined,
   PlusCircleOutlined,
   PlusOutlined,
-  SearchOutlined,
 } from '@ant-design/icons';
 import {
   Button,
@@ -12,6 +11,7 @@ import {
   Form,
   Input,
   InputNumber,
+  message,
   Modal,
   Popconfirm,
   Row,
@@ -19,53 +19,52 @@ import {
   Space,
   Table,
   Tooltip,
-  message,
 } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import {useEffect, useState} from 'react';
-import {Prices, Trip} from '../models/Trip';
+import {Prices, Route} from '../models/Route';
 import {useCityStore} from '../store/city.store';
-import {useTripStore} from '../store/trip.store';
+import {useRouteStore} from '../store/route.store';
 import {getFirstLetters} from '../util';
 
-const TripRoute = () => {
+const RoutePage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
 
-  const getTrips = useTripStore(state => state.getTrips);
-  const createTrip = useTripStore(state => state.createTrip);
-  const deleteTrip = useTripStore(state => state.deleteTrip);
-  const updateTrip = useTripStore(state => state.updateTrip);
+  const getRoutes = useRouteStore(state => state.getRoutes);
+  const createRoute = useRouteStore(state => state.createRoute);
+  const deleteRoute = useRouteStore(state => state.deleteRoute);
+  const updateRoute = useRouteStore(state => state.updateRoute);
 
   const cities = useCityStore(state => state.cities);
   const getCities = useCityStore(state => state.getCities);
 
-  const getTripsLoading = useTripStore(state => state.getTripsLoading);
-  const createTripLoading = useTripStore(state => state.createTripLoading);
-  const updateTripLoading = useTripStore(state => state.updateTripLoading);
+  const getRoutesLoading = useRouteStore(state => state.getRoutesLoading);
+  const createRouteLoading = useRouteStore(state => state.createRouteLoading);
+  const updateRouteLoading = useRouteStore(state => state.updateRouteLoading);
 
-  const trips = useTripStore(state => state.trips);
+  const routes = useRouteStore(state => state.routes);
   const [open, setOpen] = useState(false);
-  const [selectedTrip, setSelectedTrip] = useState<Trip | undefined>();
+  const [selectedRoute, setSelectedRoute] = useState<Route | undefined>();
 
   useEffect(() => {
     loadData();
   }, []);
 
   useEffect(() => {
-    if (selectedTrip) {
+    if (selectedRoute) {
       form.setFieldsValue({
-        departureCity: selectedTrip.departureCity.id,
-        arrivalCity: selectedTrip.arrivalCity.id,
-        routeNumber: selectedTrip.routeNumber,
-        transitCityIds: selectedTrip.transitCityIds,
-        prices: selectedTrip.prices,
+        departureCity: selectedRoute.departureCity.id,
+        arrivalCity: selectedRoute.arrivalCity.id,
+        routeNumber: selectedRoute.routeNumber,
+        transitCityIds: selectedRoute.transitCityIds,
+        prices: selectedRoute.prices,
       });
     }
-  }, [selectedTrip]);
+  }, [selectedRoute]);
 
   const loadData = () => {
-    getTrips()
+    getRoutes()
       .then()
       .catch(e => {
         return messageApi.error(e.message || e);
@@ -82,8 +81,8 @@ const TripRoute = () => {
 
   const onDelete = async (id: string) => {
     try {
-      await deleteTrip(id);
-      messageApi.success('Trip deleted successfully');
+      await deleteRoute(id);
+      messageApi.success('Route deleted successfully');
       loadData();
     } catch (e) {
       messageApi.error(e.message || e);
@@ -119,15 +118,15 @@ const TripRoute = () => {
     }
 
     try {
-      if (selectedTrip) {
-        await updateTrip(selectedTrip.id, object);
+      if (selectedRoute) {
+        await updateRoute(selectedRoute.id, object);
         closeModal();
-        messageApi.success('Trip updated successfully');
+        messageApi.success('Route updated successfully');
         loadData();
       } else {
-        await createTrip(object as any);
+        await createRoute(object as any);
         closeModal();
-        messageApi.success('Trip added successfully');
+        messageApi.success('Route added successfully');
         loadData();
       }
     } catch (e) {
@@ -140,7 +139,7 @@ const TripRoute = () => {
   };
 
   const closeModal = () => {
-    setSelectedTrip(undefined);
+    setSelectedRoute(undefined);
     setOpen(false);
   };
 
@@ -159,23 +158,23 @@ const TripRoute = () => {
         <Col flex={1}>
           <Table
             size={'small'}
-            loading={getTripsLoading}
-            dataSource={trips}
+            loading={getRoutesLoading}
+            dataSource={routes}
             bordered
             rowKey={'id'}
-            title={() => <h1>Trips</h1>}>
-            <Table.Column<Trip>
+            title={() => <h1>Routes</h1>}>
+            <Table.Column<Route>
               title={'Departure City'}
               align={'center'}
               dataIndex={['departureCity', 'name']}
             />
-            <Table.Column<Trip>
+            <Table.Column<Route>
               title={'Arrival City'}
               align={'center'}
               dataIndex={['arrivalCity', 'name']}
             />
-            <Table.Column<Trip> title={'Route Number'} align={'center'} dataIndex={'routeNumber'} />
-            <Table.Column<Trip>
+            <Table.Column<Route> title={'Route Number'} align={'center'} dataIndex={'routeNumber'} />
+            <Table.Column<Route>
               title={'Transit Cities'}
               render={(_, record) => {
                 return (record.transitCityIds || [])
@@ -186,7 +185,7 @@ const TripRoute = () => {
                   .join(' -> ');
               }}
             />
-            <Table.Column<Trip>
+            <Table.Column<Route>
               title={'Ticket Price'}
               align={'right'}
               render={(_, record) => {
@@ -199,7 +198,7 @@ const TripRoute = () => {
                 }
               }}
             />
-            <Table.Column<Trip>
+            <Table.Column<Route>
               title={'Action'}
               key={'action'}
               align={'center'}
@@ -209,7 +208,7 @@ const TripRoute = () => {
                     <Button
                       icon={<EditOutlined />}
                       onClick={() => {
-                        setSelectedTrip(record);
+                        setSelectedRoute(record);
                         openModal();
                       }}
                     />
@@ -231,7 +230,7 @@ const TripRoute = () => {
             width={700}
             onCancel={closeModal}
             onOk={form.submit}
-            confirmLoading={createTripLoading || updateTripLoading}>
+            confirmLoading={createRouteLoading || updateRouteLoading}>
             <h1>Form</h1>
             <Form form={form} onFinish={onFinish} preserve={false}>
               <Form.Item
@@ -334,4 +333,4 @@ const TripRoute = () => {
   );
 };
 
-export default TripRoute;
+export default RoutePage;

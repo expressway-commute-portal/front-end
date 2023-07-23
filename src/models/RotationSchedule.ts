@@ -1,8 +1,8 @@
 import {DocumentData, FirestoreDataConverter, Timestamp, WithFieldValue} from 'firebase/firestore';
-import {Trip} from './Trip';
+import {Route} from './Route';
 
 export interface BaseRotationSchedule {
-  tripId: string;
+  routeId: string;
   contactNumbers: string[];
 
   enabled: boolean;
@@ -31,7 +31,7 @@ export interface RotationSchedule extends BaseRotationSchedule {
 
 export type CreateFirebaseRotationSchedule = Partial<RotationSchedule>;
 
-export type RotationScheduleWithRelations = RotationSchedule & {trip?: Trip};
+export type RotationScheduleWithRelations = RotationSchedule & {route?: Route};
 
 export const rotationScheduleConverter: FirestoreDataConverter<RotationSchedule> = {
   toFirestore: (obj: WithFieldValue<RotationSchedule>): DocumentData => {

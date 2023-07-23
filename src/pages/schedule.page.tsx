@@ -12,6 +12,7 @@ import {
   Col,
   Form,
   Input,
+  message,
   Modal,
   Popconfirm,
   Popover,
@@ -22,7 +23,6 @@ import {
   Table,
   TimePicker,
   Tooltip,
-  message,
 } from 'antd';
 import ButtonGroup from 'antd/es/button/button-group';
 import dayjs from 'dayjs';
@@ -31,21 +31,11 @@ import {Schedule, ScheduleWithRelations} from '../models/Schedule';
 import {useBusStore} from '../store/bus.store';
 import {useCityStore} from '../store/city.store';
 import {useScheduleStore} from '../store/schedule.store';
-import {useTripStore} from '../store/trip.store';
+import {useRouteStore} from '../store/route.store';
 import {getFormattedTimeFromDate} from '../util';
-import {ColumnsType} from 'antd/es/table';
 import TransitCities from '../components/TransitCities';
 
-const formLayout = {
-  labelCol: {span: 6},
-  wrapperCol: {span: 18},
-};
-const formLayoutWithoutLabel = {
-  labelCol: {span: 0},
-  wrapperCol: {offset: 6, span: 18},
-};
-
-const ScheduleRoute = () => {
+const SchedulePage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
 
@@ -60,8 +50,8 @@ const ScheduleRoute = () => {
   const updateSchedule = useScheduleStore(state => state.updateSchedule);
   const deleteSchedule = useScheduleStore(state => state.deleteSchedule);
 
-  const trips = useTripStore(state => state.trips);
-  const getTrips = useTripStore(state => state.getTrips);
+  const routes = useRouteStore(state => state.routes);
+  const getRoutes = useRouteStore(state => state.getRoutes);
 
   const buses = useBusStore(state => state.buses);
   const getBuses = useBusStore(state => state.getBuses);
@@ -78,12 +68,12 @@ const ScheduleRoute = () => {
   const [selectedScheduleId, setSelectedScheduleId] = useState('');
 
   const [busSearchValue, setBusSearchValue] = useState('');
-  const [tripSearchValue, setTripSearchValue] = useState('');
+  const [routeSearchValue, setRouteSearchValue] = useState('');
   const [enabledSearchValue, setEnabledSearchValue] = useState(true);
 
   useEffect(() => {
     loadSchedulesWithRelations();
-    loadTrips();
+    loadRoutes();
     loadBuses();
     loadCities();
   }, []);
@@ -91,7 +81,7 @@ const ScheduleRoute = () => {
   useEffect(() => {
     if (selectedSchedule) {
       form.setFieldsValue({
-        tripId: selectedSchedule.tripId,
+        routeId: selectedSchedule.routeId,
         busId: selectedSchedule.busId,
         departureTime: dayjs(selectedSchedule.departureTime),
         arrivalTime: selectedSchedule.arrivalTime ? dayjs(selectedSchedule.arrivalTime) : null,
@@ -107,19 +97,19 @@ const ScheduleRoute = () => {
     const filtered = schedulesWithRelations.filter(s => {
       return (
         (!busSearchValue || s.bus?.name.toLowerCase().includes(busSearchValue.toLowerCase())) &&
-        (!tripSearchValue || s.tripId === tripSearchValue) &&
+        (!routeSearchValue || s.routeId === routeSearchValue) &&
         s.enabled === enabledSearchValue
       );
     });
     setFilteredSchedulesWithRelations(filtered);
-  }, [busSearchValue, tripSearchValue, enabledSearchValue, schedulesWithRelations]);
+  }, [busSearchValue, routeSearchValue, enabledSearchValue, schedulesWithRelations]);
 
   const loadSchedulesWithRelations = () => {
     getSchedulesWithRelations().then().catch(handleErrors);
   };
 
-  const loadTrips = () => {
-    getTrips().then().catch(handleErrors);
+  const loadRoutes = () => {
+    getRoutes().then().catch(handleErrors);
   };
 
   const loadBuses = () => {
@@ -198,13 +188,13 @@ const ScheduleRoute = () => {
               showSearch
               optionFilterProp={'label'}
               allowClear
-              placeholder={'Search by Trip'}
+              placeholder={'Search by Route'}
               style={{width: '70%'}}
-              options={trips.map(trip => ({
-                label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
-                value: trip.id,
+              options={routes.map(route => ({
+                label: `${route.departureCity.name} -> ${route.arrivalCity.name}`,
+                value: route.id,
               }))}
-              onChange={setTripSearchValue}
+              onChange={setRouteSearchValue}
             />
           </Col>
           <Col span={6}>
@@ -241,15 +231,16 @@ const ScheduleRoute = () => {
             rowKey={'id'}
             title={() => <h1>Schedules</h1>}>
             <Table.Column<ScheduleWithRelations>
-              title={'Trip Details'}
+              title={'Route Details'}
               align={'center'}
-              render={(_, record) => (
-                <Space>
-                  <div>{record.trip?.departureCity.name}</div>
-                  <ArrowRightOutlined />
-                  <div>{record.trip?.arrivalCity.name}</div>
-                </Space>
-              )}
+              render={(_, record) =>
+                (
+                  <Space>
+                    <div>{record.route?.departureCity.name}</div>
+                    <ArrowRightOutlined />
+                    <div>{record.route?.arrivalCity.name}</div>
+                  </Space>
+                )}
             />
             <Table.Column<ScheduleWithRelations>
               title={'Bus Details'}
@@ -347,15 +338,15 @@ const ScheduleRoute = () => {
               preserve={false}
               labelAlign="left">
               <Form.Item
-                label={'Trip'}
-                name={'tripId'}
-                rules={[{required: true, message: 'Trip is required'}]}>
+                label={'Route'}
+                name={'routeId'}
+                rules={[{required: true, message: 'Route is required'}]}>
                 <Select
                   showSearch
                   optionFilterProp={'label'}
-                  options={trips.map(trip => ({
-                    label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
-                    value: trip.id,
+                  options={routes.map(route => ({
+                    label: `${route.departureCity.name} -> ${route.arrivalCity.name}`,
+                    value: route.id,
                   }))}
                 />
               </Form.Item>
@@ -434,4 +425,4 @@ const ScheduleRoute = () => {
   );
 };
 
-export default ScheduleRoute;
+export default SchedulePage;

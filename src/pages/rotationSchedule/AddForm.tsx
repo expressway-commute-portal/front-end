@@ -1,10 +1,10 @@
 import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Form, FormInstance, InputNumber, Modal, Select, Space, TimePicker} from 'antd';
-import {Trip} from '../../models/Trip';
+import {Route} from '../../models/Route';
 import dayjs from 'dayjs';
 
 export type RotationScheduleAddFormData = {
-  tripId: string;
+  routeId: string;
   contactNumbers: string[];
   timeTable: {
     startTime: dayjs.Dayjs;
@@ -20,7 +20,7 @@ interface Props {
   closeModal: () => void;
   createRotationScheduleLoading: boolean;
   updateRotationScheduleLoading: boolean;
-  trips: Trip[];
+  routes: Route[];
   form: FormInstance;
   onFormFinish: (values: RotationScheduleAddFormData) => void;
 }
@@ -75,7 +75,7 @@ const AddForm = ({
   closeModal: closeAddModal,
   createRotationScheduleLoading,
   updateRotationScheduleLoading,
-  trips,
+  routes,
   form,
   onFormFinish: onAddFormFinish,
 }: Props) => {
@@ -91,17 +91,17 @@ const AddForm = ({
       <h1>Form</h1>
       <Form form={form} onFinish={onAddFormFinish} preserve={false} labelAlign="right">
         <Form.Item
-          label={'Trip'}
-          name={'tripId'}
+          label={'Route'}
+          name={'routeId'}
           labelCol={{span: 6}}
-          rules={[{required: true, message: 'Trip is required'}]}>
+          rules={[{required: true, message: 'Route is required'}]}>
           <Select
             showSearch
             style={{width: 300}}
             optionFilterProp={'label'}
-            options={trips.map(trip => ({
-              label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
-              value: trip.id,
+            options={routes.map(route => ({
+              label: `${route.departureCity.name} -> ${route.arrivalCity.name}`,
+              value: route.id,
             }))}
           />
         </Form.Item>

@@ -1,6 +1,6 @@
 import {DocumentData, FirestoreDataConverter, Timestamp, WithFieldValue} from 'firebase/firestore';
 import {Bus} from './Bus';
-import {Trip} from './Trip';
+import {Route} from './Route';
 
 export enum ScheduleType {
   PERMANENT = 'PERMANENT',
@@ -8,7 +8,7 @@ export enum ScheduleType {
 }
 
 interface BaseSchedule {
-  tripId: string;
+  routeId: string;
   busId?: string;
   type: ScheduleType;
 
@@ -38,7 +38,7 @@ export interface FirebaseSchedule extends BaseSchedule {
   }[];
 }
 
-export type ScheduleWithRelations = Schedule & {trip?: Trip; bus?: Bus};
+export type ScheduleWithRelations = Schedule & {route?: Route; bus?: Bus};
 
 export type CreateFirebaseSchedule = Partial<Schedule> & {arrivalTime?: Date; departureTime?: Date};
 

@@ -27,7 +27,7 @@ import {
 } from '../../models/RotationSchedule';
 import {useCityStore} from '../../store/city.store';
 import {useRotationScheduleStore} from '../../store/rotationSchedule.store';
-import {useTripStore} from '../../store/trip.store';
+import {useRouteStore} from '../../store/route.store';
 import {timeOnlyCompare} from '../../util';
 import AddForm, {RotationScheduleAddFormData} from './AddForm';
 import EditForm, {RotationScheduleEditFormData} from './EditForm';
@@ -61,8 +61,8 @@ const RotationScheduleRoute = () => {
   const updateRotationSchedule = useRotationScheduleStore(state => state.updateRotationSchedule);
   const deleteRotationSchedule = useRotationScheduleStore(state => state.deleteRotationSchedule);
 
-  const trips = useTripStore(state => state.trips);
-  const getTrips = useTripStore(state => state.getTrips);
+  const routes = useRouteStore(state => state.routes);
+  const getRoutes = useRouteStore(state => state.getRoutes);
 
   const cities = useCityStore(state => state.cities);
   const getCities = useCityStore(state => state.getCities);
@@ -79,7 +79,7 @@ const RotationScheduleRoute = () => {
   >();
   const [selectedRotationScheduleId, setSelectedRotationScheduleId] = useState('');
 
-  const [tripSearchValue, setTripSearchValue] = useState('');
+  const [routeSearchValue, setRouteSearchValue] = useState('');
   const [enabledSearchValue, setEnabledSearchValue] = useState(true);
 
   const handleErrors = (e: any) => {
@@ -88,14 +88,14 @@ const RotationScheduleRoute = () => {
 
   useEffect(() => {
     loadRotationSchedulesWithRelations();
-    loadTrips();
+    loadRoutes();
     loadCities();
   }, []);
 
   useEffect(() => {
     if (selectedRotationSchedule) {
       editForm.setFieldsValue({
-        tripId: selectedRotationSchedule.tripId,
+        routeId: selectedRotationSchedule.routeId,
         contactNumbers: selectedRotationSchedule.contactNumbers,
       });
 
@@ -110,17 +110,17 @@ const RotationScheduleRoute = () => {
 
   useEffect(() => {
     const filtered = rotationSchedulesWithRelations.filter(s => {
-      return (!tripSearchValue || s.tripId === tripSearchValue) && s.enabled === enabledSearchValue;
+      return (!routeSearchValue || s.routeId === routeSearchValue) && s.enabled === enabledSearchValue;
     });
     setFilteredRotationSchedulesWithRelations(filtered);
-  }, [tripSearchValue, enabledSearchValue, rotationSchedulesWithRelations]);
+  }, [routeSearchValue, enabledSearchValue, rotationSchedulesWithRelations]);
 
   const loadRotationSchedulesWithRelations = () => {
     getRotationSchedulesWithRelations().then().catch(handleErrors);
   };
 
-  const loadTrips = () => {
-    getTrips().then().catch(handleErrors);
+  const loadRoutes = () => {
+    getRoutes().then().catch(handleErrors);
   };
 
   const loadCities = () => {
@@ -151,7 +151,7 @@ const RotationScheduleRoute = () => {
     });
 
     const obj = {
-      tripId: values.tripId,
+      routeId: values.routeId,
       contactNumbers: values.contactNumbers || [],
       timeTable,
     };
@@ -244,13 +244,13 @@ const RotationScheduleRoute = () => {
               showSearch
               optionFilterProp={'label'}
               allowClear
-              placeholder={'Search by Trip'}
+              placeholder={'Search by Route'}
               style={{width: '70%'}}
-              options={trips.map(trip => ({
-                label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
-                value: trip.id,
+              options={routes.map(route => ({
+                label: `${route.departureCity.name} -> ${route.arrivalCity.name}`,
+                value: route.id,
               }))}
-              onChange={setTripSearchValue}
+              onChange={setRouteSearchValue}
             />
           </Col>
           <Col span={6}>
@@ -278,13 +278,13 @@ const RotationScheduleRoute = () => {
             rowKey={'id'}
             title={() => <h1>Rotation Schedules</h1>}>
             <Table.Column<RotationScheduleWithRelations>
-              title={'Trip Details'}
+              title={'Route Details'}
               align={'center'}
               render={(_, record) => (
                 <Space>
-                  <div>{record.trip?.departureCity.name}</div>
+                  <div>{record.route?.departureCity.name}</div>
                   <ArrowRightOutlined />
-                  <div>{record.trip?.arrivalCity.name}</div>
+                  <div>{record.route?.arrivalCity.name}</div>
                 </Space>
               )}
             />
@@ -359,7 +359,7 @@ const RotationScheduleRoute = () => {
             open={addModalOpen}
             closeModal={closeAddModal}
             onFormFinish={onAddFormFinish}
-            trips={trips}
+            routes={routes}
             createRotationScheduleLoading={createRotationScheduleLoading}
             updateRotationScheduleLoading={updateRotationScheduleLoading}
           />
@@ -368,7 +368,7 @@ const RotationScheduleRoute = () => {
               form={editForm}
               open={editModalOpen}
               close={closeEditModal}
-              trips={trips}
+              routes={routes}
               onEditFormFinish={onEditFormFinish}
               createRotationScheduleLoading={createRotationScheduleLoading}
               updateRotationScheduleLoading={updateRotationScheduleLoading}

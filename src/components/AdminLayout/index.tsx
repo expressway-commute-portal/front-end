@@ -32,8 +32,8 @@ const AdminLayout = ({children}: {children: JSX.Element}) => {
         <Menu.Item key="rotationSchedule">
           <Link to="/rotation-schedule">Rotation Schedules</Link>
         </Menu.Item>
-        <Menu.Item key="trip">
-          <Link to="/trip">Trip</Link>
+        <Menu.Item key="route">
+          <Link to="/route">Route</Link>
         </Menu.Item>
         <Menu.Item key="bus">
           <Link to="/bus">Bus</Link>

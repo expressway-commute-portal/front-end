@@ -41,7 +41,7 @@ const formItemLayoutWithOutLabel = {
   },
 };
 
-const BusRoute = () => {
+const BusPage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
 
@@ -243,4 +243,4 @@ const BusRoute = () => {
   );
 };
 
-export default BusRoute;
+export default BusPage;

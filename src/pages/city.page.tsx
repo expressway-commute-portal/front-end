@@ -6,7 +6,7 @@ import ButtonGroup from 'antd/es/button/button-group';
 import {City} from '../models/City';
 import {useCityStore} from '../store/city.store';
 
-const CityRoute = () => {
+const CityPage = () => {
   const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
 
@@ -144,4 +144,4 @@ const CityRoute = () => {
   );
 };
 
-export default CityRoute;
+export default CityPage;

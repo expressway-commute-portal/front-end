@@ -5,7 +5,7 @@ export type Prices = {
   serviceType: string;
 };
 
-export interface Trip {
+export interface Route {
   id: string;
 
   departureCity: {
@@ -29,4 +29,4 @@ export interface Trip {
   updatedAt: Timestamp;
 }
 
-export type FirebaseTrip = Omit<Trip, 'id'>;
+export type FirebaseRoute = Omit<Route, 'id'>;

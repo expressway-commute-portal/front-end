@@ -11,15 +11,15 @@ import UserLayout from '../components/UserLayout/UserLayout';
 import {analytics, auth, db} from '../config/firebase';
 import {useAuthStore} from '../store/auth.store';
 import {useUserStore} from '../store/user.store';
-import BusRoute from './bus.route';
-import CityRoute from './city.route';
+import BusPage from './bus.page';
+import CityPage from './city.page';
 import RotationScheduleRoute from './rotationSchedule';
-import ScheduleRoute from './schedule.route';
-import ScheduleSearchRoute from './scheduleSearch.route';
-import SocialLoginRoute from './socialLogin.route';
-import TripRoute from './trip.route';
+import SchedulePage from './schedule.page';
+import ScheduleSearchPage from './scheduleSearch.page';
+import SocialLoginPage from './socialLogin.page';
+import RoutePage from './route.page';
 
-const adminRoutes = ['/schedule', '/bus', '/city', '/trip'];
+const adminRoutes = ['/schedule', '/bus', '/city', '/route'];
 
 const router = createBrowserRouter([
   {
@@ -27,7 +27,7 @@ const router = createBrowserRouter([
     element: (
       <AuthenticationRoute>
         <UserLayout>
-          <ScheduleSearchRoute />
+          <ScheduleSearchPage />
         </UserLayout>
       </AuthenticationRoute>
     ),
@@ -37,7 +37,7 @@ const router = createBrowserRouter([
     path: '/login',
     element: (
       <UserLayout>
-        <SocialLoginRoute />
+        <SocialLoginPage />
       </UserLayout>
     ),
     errorElement: <h1>404 Error Page</h1>,
@@ -47,7 +47,7 @@ const router = createBrowserRouter([
     element: (
       <AuthenticationRoute>
         <AdminLayout>
-          <ScheduleRoute />
+          <SchedulePage />
         </AdminLayout>
       </AuthenticationRoute>
     ),
@@ -69,7 +69,7 @@ const router = createBrowserRouter([
     element: (
       <AuthenticationRoute>
         <AdminLayout>
-          <BusRoute />
+          <BusPage />
         </AdminLayout>
       </AuthenticationRoute>
     ),
@@ -80,18 +80,18 @@ const router = createBrowserRouter([
     element: (
       <AuthenticationRoute>
         <AdminLayout>
-          <CityRoute />
+          <CityPage />
         </AdminLayout>
       </AuthenticationRoute>
     ),
     errorElement: <h1>404 Error Page</h1>,
   },
   {
-    path: '/trip',
+    path: '/route',
     element: (
       <AuthenticationRoute>
         <AdminLayout>
-          <TripRoute />
+          <RoutePage />
         </AdminLayout>
       </AuthenticationRoute>
     ),
@@ -110,7 +110,6 @@ const RootRoute = () => {
 function AuthenticationRoute({children}: {children: JSX.Element}) {
   const firebaseUserDetails = useAuthStore(state => state.firebaseUserDetails);
 
-  const getLoggedInUser = useUserStore(state => state.getLoggedInUser);
   const findAndWatchUser = useUserStore(state => state.findAndWatchUser);
   const loggedInUser = useUserStore(state => state.loggedInUser);
 

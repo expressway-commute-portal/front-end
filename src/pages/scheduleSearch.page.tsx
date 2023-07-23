@@ -23,10 +23,10 @@ import {Schedule} from '../models/Schedule';
 import {useBusStore} from '../store/bus.store';
 import {useCityStore} from '../store/city.store';
 import {useScheduleStore} from '../store/schedule.store';
-import {useTripStore} from '../store/trip.store';
+import {useRouteStore} from '../store/route.store';
 import {getFirstLetters} from '../util';
 
-function ScheduleSearchRoute() {
+function ScheduleSearchPage() {
   const [open, setOpen] = useState(false);
 
   const [selectedDepartureCity, setSelectedDepartureCity] = useState<
@@ -51,9 +51,9 @@ function ScheduleSearchRoute() {
   const clearDepartureCities = useCityStore(state => state.clearDepartureCities);
   const clearArrivalCities = useCityStore(state => state.clearArrivalCities);
 
-  const searchTrips = useTripStore(state => state.searchTrips);
-  const getTripsLoading = useTripStore(state => state.getTripsLoading);
-  const getTripsByCityIds = useTripStore(state => state.getTripsByCityIds);
+  const searchRoutes = useRouteStore(state => state.searchRoutes);
+  const getRoutesLoading = useRouteStore(state => state.getRoutesLoading);
+  const getRoutesByCityIds = useRouteStore(state => state.getRoutesByCityIds);
 
   const schedules = useScheduleStore(state => state.schedules);
   const getSchedulesLoading = useScheduleStore(state => state.getSchedulesLoading);
@@ -106,7 +106,7 @@ function ScheduleSearchRoute() {
       departureCity: {key: departureCityId},
     } = values;
 
-    await getTripsByCityIds(departureCityId, arrivalCityId);
+    await getRoutesByCityIds(departureCityId, arrivalCityId);
     const count = await getSchedules();
 
     if (count === 0) {
@@ -144,7 +144,7 @@ function ScheduleSearchRoute() {
   };
 
   const renderSchedules = () => {
-    if (!searchTrips.length || !selectedDepartureCity || !selectedArrivalCity) {
+    if (!searchRoutes.length || !selectedDepartureCity || !selectedArrivalCity) {
       return null;
     }
 
@@ -166,28 +166,28 @@ function ScheduleSearchRoute() {
         grid={gridConfig}
         dataSource={schedules}
         renderItem={schedule => {
-          const trip = searchTrips.find(t => t.id === schedule.tripId);
-          if (!trip) {
+          const route = searchRoutes.find(t => t.id === schedule.routeId);
+          if (!route) {
             return <></>;
           }
 
           let price = '';
-          if (trip.prices.length > 1) {
-            price = trip.prices
+          if (route.prices.length > 1) {
+            price = route.prices
               .map(p => `${p.price.toLocaleString()}/=(${getFirstLetters(p.serviceType)})`)
               .join(' | ');
-          } else if (trip.prices.length === 1) {
-            price = `${trip.prices[0].price.toLocaleString()}/=`;
+          } else if (route.prices.length === 1) {
+            price = `${route.prices[0].price.toLocaleString()}/=`;
           } else {
-            price = `${trip.price.toLocaleString()}/=`;
+            price = `${route.price.toLocaleString()}/=`;
           }
 
-          const routeDepartureCity = trip.departureCity.name;
+          const routeDepartureCity = route.departureCity.name;
           const routeDepartureTime: Date | undefined = schedule.departureTime;
-          let departureCity = trip.departureCity.name;
+          let departureCity = route.departureCity.name;
           let departureTime: Date | undefined = schedule.departureTime;
 
-          if (selectedDepartureCity.id !== trip.departureCity.id) {
+          if (selectedDepartureCity.id !== route.departureCity.id) {
             departureCity = selectedDepartureCity.name;
             const transitTime = schedule.transitTimes.find(
               t => t.cityId === selectedDepartureCity.id,
@@ -195,12 +195,12 @@ function ScheduleSearchRoute() {
             departureTime = transitTime;
           }
 
-          const routeArrivalCity = trip.arrivalCity.name;
+          const routeArrivalCity = route.arrivalCity.name;
           const routeArrivalTime: Date | undefined = schedule.arrivalTime;
-          let arrivalCity = trip.arrivalCity.name;
+          let arrivalCity = route.arrivalCity.name;
           let arrivalTime = schedule.arrivalTime;
 
-          if (selectedArrivalCity.id !== trip.arrivalCity.id) {
+          if (selectedArrivalCity.id !== route.arrivalCity.id) {
             arrivalCity = selectedArrivalCity.name;
             const transitTime = schedule.transitTimes.find(
               t => t.cityId === selectedArrivalCity.id,
@@ -219,9 +219,9 @@ function ScheduleSearchRoute() {
                 arrivalCity={arrivalCity}
                 departureTime={departureTime}
                 arrivalTime={arrivalTime}
-                routeNo={trip.routeNumber}
+                routeNo={route.routeNumber}
                 price={price}
-                prices={trip.prices}
+                prices={route.prices}
                 busId={schedule.busId}
                 buttonLoading={getBusByIdLoading && selectedSchedule?.id === schedule.id}
                 onBusDetailsButtonClick={() => onBusDetailsButtonClick(schedule)}
@@ -292,7 +292,7 @@ function ScheduleSearchRoute() {
                 <Button
                   block
                   size={'large'}
-                  loading={getTripsLoading || getSchedulesLoading}
+                  loading={getRoutesLoading || getSchedulesLoading}
                   type="primary"
                   htmlType="submit"
                   icon={<SearchOutlined />}>
@@ -354,4 +354,4 @@ function ScheduleSearchRoute() {
   );
 }
 
-export default ScheduleSearchRoute;
+export default ScheduleSearchPage;

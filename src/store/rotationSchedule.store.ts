@@ -5,7 +5,7 @@ import {
   RotationSchedule,
   RotationScheduleWithRelations,
 } from '../models/RotationSchedule';
-import {useTripStore} from './trip.store';
+import {useRouteStore} from './route.store';
 import * as rotationScheduleService from '../services/rotationSchedule.service';
 
 interface State {
@@ -25,7 +25,7 @@ interface State {
 
   getRotationSchedulesWithRelations: () => Promise<void>;
 
-  filter: (tripId: string, enabled: boolean) => void;
+  filter: (routeId: string, enabled: boolean) => void;
 
   clearRotationSchedules: () => void;
 }
@@ -44,10 +44,10 @@ export const useRotationScheduleStore = create<State>()(
     getRotationSchedules: async () => {
       set({getRotationSchedulesLoading: true});
       try {
-        const searchTrips = useTripStore.getState().searchTrips;
-        if (searchTrips.length) {
-          const rotationSchedules = await rotationScheduleService.findAllByTripId(
-            searchTrips.map(t => t.id),
+        const searchRoutes = useRouteStore.getState().searchRoutes;
+        if (searchRoutes.length) {
+          const rotationSchedules = await rotationScheduleService.findAllByRouteIds(
+            searchRoutes.map(t => t.id),
           );
           set({rotationSchedules});
           return rotationSchedules.length;
@@ -114,10 +114,10 @@ export const useRotationScheduleStore = create<State>()(
       }
     },
 
-    filter: (tripId: string, enabled: boolean) => {
+    filter: (routeId: string, enabled: boolean) => {
       const rotationSchedules = get().rotationSchedulesWithRelations;
       const filteredSchedules = rotationSchedules.filter(
-        s => (!tripId || s.tripId === tripId) && s.enabled === enabled,
+        s => (!routeId || s.routeId === routeId) && s.enabled === enabled,
       );
       set({filteredRotationSchedulesWithRelations: filteredSchedules});
     },

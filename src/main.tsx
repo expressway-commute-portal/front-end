@@ -1,7 +1,7 @@
 import {ConfigProvider} from 'antd';
 import ReactDOM from 'react-dom/client';
 import {registerSW} from 'virtual:pwa-register';
-import RootRoute from './routes';
+import RootRoute from './pages';
 
 registerSW({immediate: true});
 

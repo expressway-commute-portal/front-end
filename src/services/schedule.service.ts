@@ -1,4 +1,4 @@
-import dayjs from 'dayjs';
+import dayjs from "dayjs";
 import {
   addDoc,
   collection,
@@ -10,32 +10,32 @@ import {
   QueryDocumentSnapshot,
   Timestamp,
   updateDoc,
-  where,
-} from 'firebase/firestore';
-import {db} from '../config/firebase';
-import {FirestoreCollections} from '../models';
-import {Bus} from '../models/Bus';
+  where
+} from "firebase/firestore";
+import { db } from "../config/firebase";
+import { FirestoreCollections } from "../models";
+import { Bus } from "../models/Bus";
 import {
   CreateFirebaseSchedule,
   Schedule,
   scheduleConverter,
-  ScheduleWithRelations,
-} from '../models/Schedule';
-import {Trip} from '../models/Trip';
-import {timeOnlyCompare} from '../util';
-import * as busService from './bus.service';
-import * as tripService from './trip.service';
+  ScheduleWithRelations
+} from "../models/Schedule";
+import { Route } from "../models/Route";
+import { timeOnlyCompare } from "../util";
+import * as busService from "./bus.service";
+import * as routeService from "./route.service";
 
 const scheduleCollection = collection(db, FirestoreCollections.Schedule).withConverter(
-  scheduleConverter,
+  scheduleConverter
 );
 
-export async function getSchedulesByTripIds(tripIds: string[]) {
+export async function getSchedulesByRouteIds(routeIds: string[]) {
   const snap = await getDocs(
-    query(scheduleCollection, where('tripId', 'in', tripIds), where('enabled', '==', true)),
+    query(scheduleCollection, where("routeId", "in", routeIds), where("enabled", "==", true))
   );
   const schedules = snap.docs.map(doc => ({
-    ...doc.data(),
+    ...doc.data()
   })) as Schedule[];
   schedules.sort((a, b) => timeOnlyCompare(dayjs(a.departureTime), dayjs(b.departureTime)));
   return schedules;
@@ -44,15 +44,15 @@ export async function getSchedulesByTripIds(tripIds: string[]) {
 export const getAllWithRelations = async () => {
   const snap = await getDocs(query(scheduleCollection));
 
-  const tripCache = new Map<string, Trip>();
+  const routeCache = new Map<string, Route>();
   const busCache = new Map<string, Bus>();
   const schedules: ScheduleWithRelations[] = await Promise.all(
-    snap.docs.map(doc => fetchRelations(doc, tripCache, busCache)),
+    snap.docs.map(doc => fetchRelations(doc, routeCache, busCache))
   );
 
   schedules.sort((a, b) => {
     return (
-      a.tripId.localeCompare(b.tripId) ||
+      a.routeId.localeCompare(b.routeId) ||
       timeOnlyCompare(dayjs(a.departureTime), dayjs(b.departureTime))
     );
   });
@@ -61,13 +61,13 @@ export const getAllWithRelations = async () => {
 
 export const getByIdWithRelations = async (id: string) => {
   const snapshot = await getDoc(
-    doc(db, FirestoreCollections.Schedule, id).withConverter(scheduleConverter),
+    doc(db, FirestoreCollections.Schedule, id).withConverter(scheduleConverter)
   );
   if (snapshot.exists()) {
     const schedule: ScheduleWithRelations = snapshot.data();
 
-    const trip = await tripService.getById(schedule.tripId);
-    trip && (schedule.trip = trip);
+    const route = await routeService.getById(schedule.routeId);
+    route && (schedule.route = route);
 
     if (schedule.busId) {
       const bus = await busService.getById(schedule.busId);
@@ -82,7 +82,7 @@ export const create = async (schedule: CreateFirebaseSchedule) => {
     ...schedule,
     enabled: true,
     createdAt: Timestamp.now(),
-    updatedAt: Timestamp.now(),
+    updatedAt: Timestamp.now()
   };
 
   const reference = await addDoc(collection(db, FirestoreCollections.Schedule), document);
@@ -92,7 +92,7 @@ export const create = async (schedule: CreateFirebaseSchedule) => {
 export const update = async (id: string, schedule: Partial<Schedule>) => {
   const document: Partial<Schedule> = {
     ...schedule,
-    updatedAt: Timestamp.now(),
+    updatedAt: Timestamp.now()
   };
 
   await updateDoc(doc(db, FirestoreCollections.Schedule, id), document);
@@ -104,19 +104,19 @@ export async function deleteById(id: string) {
 
 async function fetchRelations(
   doc: QueryDocumentSnapshot<Schedule>,
-  tripCache: Map<string, Trip>,
-  busCache: Map<string, Bus>,
+  routeCache: Map<string, Route>,
+  busCache: Map<string, Bus>
 ) {
   const schedule: ScheduleWithRelations = doc.data();
 
-  if (!tripCache.has(schedule.tripId)) {
-    const trip = await tripService.getById(schedule.tripId);
-    if (trip) {
-      tripCache.set(schedule.tripId, trip);
-      schedule.trip = trip;
+  if (!routeCache.has(schedule.routeId)) {
+    const route = await routeService.getById(schedule.routeId);
+    if (route) {
+      routeCache.set(schedule.routeId, route);
+      schedule.route = route;
     }
   } else {
-    schedule.trip = tripCache.get(schedule.tripId);
+    schedule.route = routeCache.get(schedule.routeId);
   }
 
   if (schedule.busId) {

@@ -2,7 +2,7 @@ import {create} from 'zustand';
 import {devtools} from 'zustand/middleware';
 import * as scheduleService from '../services/schedule.service';
 import {CreateFirebaseSchedule, Schedule, ScheduleWithRelations} from '../models/Schedule';
-import {useTripStore} from './trip.store';
+import {useRouteStore} from './route.store';
 import {deleteById} from '../services/schedule.service';
 
 interface State {
@@ -22,7 +22,7 @@ interface State {
 
   getSchedulesWithRelations: () => Promise<void>;
 
-  filter: (busName: string, tripId: string, enabled: boolean) => void;
+  filter: (busName: string, routeId: string, enabled: boolean) => void;
 
   clearSchedules: () => void;
 }
@@ -41,9 +41,11 @@ export const useScheduleStore = create<State>()(
     getSchedules: async () => {
       set({getSchedulesLoading: true});
       try {
-        const searchTrips = useTripStore.getState().searchTrips;
-        if (searchTrips.length) {
-          const schedules = await scheduleService.getSchedulesByTripIds(searchTrips.map(t => t.id));
+        const searchRoutes = useRouteStore.getState().searchRoutes;
+        if (searchRoutes.length) {
+          const schedules = await scheduleService.getSchedulesByRouteIds(
+            searchRoutes.map(t => t.id),
+          );
           set({schedules});
           return schedules.length;
         } else {
@@ -102,12 +104,12 @@ export const useScheduleStore = create<State>()(
       }
     },
 
-    filter: (busName: string, tripId: string, enabled: boolean) => {
+    filter: (busName: string, routeId: string, enabled: boolean) => {
       const schedules = get().schedulesWithRelations;
       const filteredSchedules = schedules.filter(
         s =>
           (!busName || s.bus?.name.toLowerCase().includes(busName.toLowerCase())) &&
-          (!tripId || s.tripId === tripId) &&
+          (!routeId || s.routeId === routeId) &&
           s.enabled === enabled,
       );
       set({filteredSchedulesWithRelations: filteredSchedules});

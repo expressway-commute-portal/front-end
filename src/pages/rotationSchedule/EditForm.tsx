@@ -1,9 +1,9 @@
 import {MinusCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Form, FormInstance, InputNumber, Modal, Select} from 'antd';
-import {Trip} from '../../models/Trip';
+import {Route} from '../../models/Route';
 
 export type RotationScheduleEditFormData = {
-  tripId: string;
+  routeId: string;
   contactNumbers: string[];
 };
 
@@ -12,7 +12,7 @@ interface Props {
   close: () => void;
   createRotationScheduleLoading: boolean;
   updateRotationScheduleLoading: boolean;
-  trips: Trip[];
+  routes: Route[];
   form: FormInstance;
   onEditFormFinish: (values: RotationScheduleEditFormData) => void;
 }
@@ -40,7 +40,7 @@ const EditForm = ({
   close: closeAddModal,
   createRotationScheduleLoading,
   updateRotationScheduleLoading,
-  trips,
+  routes,
   form,
   onEditFormFinish,
 }: Props) => {
@@ -56,17 +56,17 @@ const EditForm = ({
       <h1>Form</h1>
       <Form form={form} onFinish={onEditFormFinish} preserve={false} labelAlign="right">
         <Form.Item
-          label={'Trip'}
-          name={'tripId'}
+          label={'Route'}
+          name={'routeId'}
           labelCol={{span: 6}}
-          rules={[{required: true, message: 'Trip is required'}]}>
+          rules={[{required: true, message: 'Route is required'}]}>
           <Select
             showSearch
             style={{width: 300}}
             optionFilterProp={'label'}
-            options={trips.map(trip => ({
-              label: `${trip.departureCity.name} -> ${trip.arrivalCity.name}`,
-              value: trip.id,
+            options={routes.map(route => ({
+              label: `${route.departureCity.name} -> ${route.arrivalCity.name}`,
+              value: route.id,
             }))}
           />
         </Form.Item>

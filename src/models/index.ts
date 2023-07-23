@@ -2,7 +2,7 @@ export enum FirestoreCollections {
   City = 'city',
   Schedule = 'schedule',
   RotationSchedule = 'rotation-schedule',
-  Trip = 'trip',
+  Route = 'route',
   Bus = 'bus',
   User = 'user',
 }
