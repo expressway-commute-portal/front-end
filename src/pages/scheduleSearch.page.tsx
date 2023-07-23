@@ -1,4 +1,4 @@
-import {ClearOutlined, PhoneTwoTone, SearchOutlined} from '@ant-design/icons';
+import { ClearOutlined, PhoneTwoTone, SearchOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -10,30 +10,30 @@ import {
   Row,
   Select,
   Space,
-  message,
-} from 'antd';
-import {logEvent} from 'firebase/analytics';
-import _debounce from 'lodash/debounce';
-import {useEffect, useMemo, useState} from 'react';
-import '../App.css';
-import ScheduleCard from '../components/ScheduleCard';
-import {analytics} from '../config/firebase';
-import {City} from '../models/City';
-import {Schedule} from '../models/Schedule';
-import {useBusStore} from '../store/bus.store';
-import {useCityStore} from '../store/city.store';
-import {useScheduleStore} from '../store/schedule.store';
-import {useRouteStore} from '../store/route.store';
-import {getFirstLetters} from '../util';
+  message
+} from "antd";
+import { logEvent } from "firebase/analytics";
+import _debounce from "lodash/debounce";
+import { useEffect, useMemo, useState } from "react";
+import "../App.css";
+import ScheduleCard from "../components/ScheduleCard";
+import { analytics } from "../config/firebase";
+import { City } from "../models/City";
+import { Schedule } from "../models/Schedule";
+import { useBusStore } from "../store/bus.store";
+import { useCityStore } from "../store/city.store";
+import { useScheduleStore } from "../store/schedule.store";
+import { useRouteStore } from "../store/route.store";
+import { formatMobileNo, getFirstLetters } from "../util";
 
 function ScheduleSearchPage() {
   const [open, setOpen] = useState(false);
 
   const [selectedDepartureCity, setSelectedDepartureCity] = useState<
-    Pick<City, 'id' | 'name'> | undefined
+    Pick<City, "id" | "name"> | undefined
   >();
   const [selectedArrivalCity, setSelectedArrivalCity] = useState<
-    Pick<City, 'id' | 'name'> | undefined
+    Pick<City, "id" | "name"> | undefined
   >();
 
   const departureCities = useCityStore(state => state.departureCities);
@@ -41,7 +41,7 @@ function ScheduleSearchPage() {
 
   const getDepartureCitiesByName = useCityStore(state => state.getDepartureCitiesByName);
   const getDepartureCitiesByNameLoading = useCityStore(
-    state => state.getDepartureCitiesByNameLoading,
+    state => state.getDepartureCitiesByNameLoading
   );
 
   const getArrivalCitiesByName = useCityStore(state => state.getArrivalCitiesByName);
@@ -102,19 +102,19 @@ function ScheduleSearchPage() {
 
   const onFinish = async (values: any) => {
     const {
-      arrivalCity: {key: arrivalCityId},
-      departureCity: {key: departureCityId},
+      arrivalCity: { key: arrivalCityId },
+      departureCity: { key: departureCityId }
     } = values;
 
     await getRoutesByCityIds(departureCityId, arrivalCityId);
     const count = await getSchedules();
 
     if (count === 0) {
-      messageApi.warning('No schedules');
-      logEvent(analytics, 'empty_search_result', {
+      messageApi.warning("No schedules");
+      logEvent(analytics, "empty_search_result", {
         departureCity: selectedDepartureCity?.name,
         arrivalCity: selectedArrivalCity?.name,
-        bothCities: `${selectedDepartureCity?.name} -> ${selectedArrivalCity?.name}`,
+        bothCities: `${selectedDepartureCity?.name} -> ${selectedArrivalCity?.name}`
       });
     }
   };
@@ -158,7 +158,7 @@ function ScheduleSearchPage() {
       md: 2,
       lg: columns,
       xl: columns,
-      xxl: columns,
+      xxl: columns
     };
 
     return (
@@ -171,11 +171,11 @@ function ScheduleSearchPage() {
             return <></>;
           }
 
-          let price = '';
+          let price = "";
           if (route.prices.length > 1) {
             price = route.prices
               .map(p => `${p.price.toLocaleString()}/=(${getFirstLetters(p.serviceType)})`)
-              .join(' | ');
+              .join(" | ");
           } else if (route.prices.length === 1) {
             price = `${route.prices[0].price.toLocaleString()}/=`;
           } else {
@@ -190,7 +190,7 @@ function ScheduleSearchPage() {
           if (selectedDepartureCity.id !== route.departureCity.id) {
             departureCity = selectedDepartureCity.name;
             const transitTime = schedule.transitTimes.find(
-              t => t.cityId === selectedDepartureCity.id,
+              t => t.cityId === selectedDepartureCity.id
             )?.time;
             departureTime = transitTime;
           }
@@ -203,7 +203,7 @@ function ScheduleSearchPage() {
           if (selectedArrivalCity.id !== route.arrivalCity.id) {
             arrivalCity = selectedArrivalCity.name;
             const transitTime = schedule.transitTimes.find(
-              t => t.cityId === selectedArrivalCity.id,
+              t => t.cityId === selectedArrivalCity.id
             )?.time;
             arrivalTime = transitTime;
           }
@@ -236,24 +236,24 @@ function ScheduleSearchPage() {
   return (
     <>
       {contextHolder}
-      <Row justify={'center'} style={{marginTop: 20}}>
+      <Row justify={"center"} style={{ marginTop: 20 }}>
         <Col>
-          <Card title={'Expressway Bus Schedule'} headStyle={{textAlign: 'center'}}>
-            <Form labelAlign={'right'} labelCol={{span: 10}} onFinish={onFinish}>
+          <Card title={"Expressway Bus Schedule"} headStyle={{ textAlign: "center" }}>
+            <Form labelAlign={"right"} labelCol={{ span: 10 }} onFinish={onFinish}>
               <Form.Item
                 // label={'From'}
-                name={'departureCity'}
-                style={{width: 300}}
-                rules={[{required: true, message: 'Departure city is required'}]}>
+                name={"departureCity"}
+                style={{ width: 300 }}
+                rules={[{ required: true, message: "Departure city is required" }]}>
                 <Select
                   loading={getDepartureCitiesByNameLoading}
                   showSearch
                   labelInValue
                   size="large"
-                  placeholder={'From'}
+                  placeholder={"From"}
                   onSearch={debouncedDepartureSearch}
-                  onSelect={({key, label}: {key: string; label: string}) => {
-                    setSelectedDepartureCity({id: key, name: label});
+                  onSelect={({ key, label }: { key: string; label: string }) => {
+                    setSelectedDepartureCity({ id: key, name: label });
                     clearSearchedSchedules();
                   }}>
                   {departureCities.map(city => (
@@ -266,18 +266,18 @@ function ScheduleSearchPage() {
 
               <Form.Item
                 // label={'To'}
-                name={'arrivalCity'}
-                style={{width: 300}}
-                rules={[{required: true, message: 'Arrival city is required'}]}>
+                name={"arrivalCity"}
+                style={{ width: 300 }}
+                rules={[{ required: true, message: "Arrival city is required" }]}>
                 <Select
                   loading={getArrivalCitiesByNameLoading}
                   showSearch
                   labelInValue
                   size="large"
-                  placeholder={'To'}
+                  placeholder={"To"}
                   onSearch={debouncedArrivalSearch}
-                  onSelect={({key, label}: {key: string; label: string}) => {
-                    setSelectedArrivalCity({id: key, name: label});
+                  onSelect={({ key, label }: { key: string; label: string }) => {
+                    setSelectedArrivalCity({ id: key, name: label });
                     clearSearchedSchedules();
                   }}>
                   {arrivalCities.map(city => (
@@ -291,7 +291,7 @@ function ScheduleSearchPage() {
               <Form.Item>
                 <Button
                   block
-                  size={'large'}
+                  size={"large"}
                   loading={getRoutesLoading || getSchedulesLoading}
                   type="primary"
                   htmlType="submit"
@@ -303,7 +303,7 @@ function ScheduleSearchPage() {
               <Form.Item>
                 <Button
                   block
-                  size={'large'}
+                  size={"large"}
                   type="default"
                   htmlType="reset"
                   icon={<ClearOutlined />}
@@ -320,7 +320,7 @@ function ScheduleSearchPage() {
       <br />
 
       {/* Schedule List */}
-      <Row justify={'center'}>
+      <Row justify={"center"}>
         <Col>{renderSchedules()}</Col>
       </Row>
 
@@ -328,24 +328,27 @@ function ScheduleSearchPage() {
       {selectedBus && (
         <Modal open={open} onCancel={onCloseModal} destroyOnClose maskClosable footer={null}>
           <Descriptions
-            title={<div style={{textAlign: 'center'}}>Bus Details</div>}
+            title={<div style={{ textAlign: "center" }}>Bus Details</div>}
             bordered
-            layout={'horizontal'}
+            layout={"horizontal"}
             column={1}
-            size={'small'}>
+            size={"small"}>
             <Descriptions.Item label="Name">{selectedBus.name}</Descriptions.Item>
             <Descriptions.Item label="Registration Number">
               {selectedBus.regNumber}
             </Descriptions.Item>
             <Descriptions.Item label="Contact Number(s)">
-              {selectedBus.contactNumbers.map((no, i) => (
-                <div key={i}>
-                  <Space>
-                    <PhoneTwoTone />
-                    <a href={`tel:${no}`}>{no}</a>
-                  </Space>
-                </div>
-              ))}
+              {selectedBus.contactNumbers.map((no, i) => {
+                console.log(no);
+                return (
+                  <div key={i}>
+                    <Space>
+                      <PhoneTwoTone />
+                      <a href={`tel:${no}`}>{formatMobileNo(no)}</a>
+                    </Space>
+                  </div>
+                );
+              })}
             </Descriptions.Item>
           </Descriptions>
         </Modal>

@@ -1,10 +1,10 @@
-import {Dayjs} from 'dayjs';
+import { Dayjs } from "dayjs";
 
 export const getFormattedTimeFromDate = (date: Date) => {
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat("en-US", {
     hour12: true,
-    minute: '2-digit',
-    hour: '2-digit',
+    minute: "2-digit",
+    hour: "2-digit"
   }).format(date);
 };
 
@@ -23,6 +23,14 @@ export const timeOnlyCompare = (date1: Dayjs, date2: Dayjs) => {
 };
 
 export const getFirstLetters = (str: string) => {
-  const words = str.split(' ');
-  return words.map(word => word[0]).join('');
+  const words = str.split(" ");
+  return words.map(word => word[0]).join("");
+};
+
+// format mobile no to xx-xxx-xxxx
+export const formatMobileNo = (mobileNo: string) => {
+  const mobileNoArr = `${mobileNo}`.split("");
+  mobileNoArr.splice(2, 0, "-");
+  mobileNoArr.splice(6, 0, " ");
+  return mobileNoArr.join("");
 };
